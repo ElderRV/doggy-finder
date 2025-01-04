@@ -4,18 +4,34 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Loader2, Mail } from "lucide-react"
+import { useForm } from 'react-hook-form'
+
+interface InicioSesionFormValues {
+    email: string;
+    password: string;
+}
 
 export default function InicioSesion() {
-    const [isLoading, setIsLoading] = useState<boolean>(false)
+    const { register, handleSubmit, formState, reset } = useForm<InicioSesionFormValues>({
+        defaultValues: {
+            email: '',
+            password: '',
+        }
+    });
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
-    async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
-        e.preventDefault();
+    async function onSubmit(data: InicioSesionFormValues) {
+        console.log(data);
         setIsLoading(true);
 
-        // Simulate API call
-        setTimeout(() => {
-            setIsLoading(false);
-        }, 3000)
+        // Simular carga del inicio de sesión
+        await new Promise((res) => {
+            setTimeout(() => {
+                setIsLoading(false);
+                reset();
+                res(null);
+            }, 3000)
+        })
     }
 
     const handleGoogleOauth = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -38,15 +54,37 @@ export default function InicioSesion() {
                     <CardDescription>Introduce tus credenciales para iniciar sesión</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <form onSubmit={onSubmit}>
+                    <form onSubmit={handleSubmit(onSubmit)}>
                         <div className="grid w-full items-center gap-4">
                             <div className="flex flex-col space-y-1.5">
                                 <Label htmlFor="email">Correo electrónico</Label>
-                                <Input id="email" placeholder="john@example.com" type="email" />
+                                <Input {...register("email", {
+                                    required: "El correo electrónico es requerido",
+                                    pattern: {
+                                        value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
+                                        message: "Introduce un correo electrónico válido"
+                                    }
+                                })} id="email" placeholder="john@example.com" type="email" />
+                                {
+                                    formState.errors.email && (
+                                        <span className="text-sm text-red-500">{formState.errors.email.message}</span>
+                                    )
+                                }
                             </div>
                             <div className="flex flex-col space-y-1.5">
                                 <Label htmlFor="password">Contraseña</Label>
-                                <Input id="password" type="password" />
+                                <Input {...register('password', {
+                                    required: "La contraseña es requerida",
+                                    minLength: {
+                                        value: 6,
+                                        message: "La contraseña debe tener al menos 6 caracteres"
+                                    }
+                                })} id="password" type="password" />
+                                {
+                                    formState.errors.password && (
+                                        <span className="text-sm text-red-500">{formState.errors.password.message}</span>
+                                    )
+                                }
                             </div>
                         </div>
                         <Button className="w-full mt-6" type="submit" disabled={isLoading}>
