@@ -1,10 +1,15 @@
-import { useState } from 'react'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Loader2, Mail } from "lucide-react"
-import { useForm } from 'react-hook-form'
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import toast from 'react-hot-toast';
+
+import { useAuth } from '@/context/AuthProvider';
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Loader2, Mail } from "lucide-react";
+
 
 interface RegistroFormValues {
     name: string;
@@ -13,6 +18,7 @@ interface RegistroFormValues {
 }
 
 export default function Registro() {
+    const { registrarUsuario } = useAuth()!;
     const { register, handleSubmit, formState, reset } = useForm<RegistroFormValues>({
         defaultValues: {
             name: '',
@@ -24,17 +30,21 @@ export default function Registro() {
     const [isLoading, setIsLoading] = useState<boolean>(false)
 
     async function onSubmit(data: RegistroFormValues) {
-        console.log(data);
         setIsLoading(true);
 
-        // Simular carga del inicio de sesión
-        await new Promise((res) => {
-            setTimeout(() => {
-                setIsLoading(false);
-                reset();
-                res(null);
-            }, 3000)
+        const promesa = registrarUsuario({
+            name: data.name,
+            email: data.email,
+            password: data.password
         })
+        await toast.promise(promesa, {
+            loading: 'Registrando usuario...',
+            success: 'Usuario registrado',
+            error: 'Ocurrió un error al registrar el usuario'
+        })
+
+        setIsLoading(false);
+        reset();
     }
 
     const handleGoogleOauth = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {

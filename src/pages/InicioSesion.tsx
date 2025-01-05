@@ -1,10 +1,15 @@
-import { useState } from 'react'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Loader2, Mail } from "lucide-react"
-import { useForm } from 'react-hook-form'
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router';
+
+import { useAuth } from '@/context/AuthProvider';
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Loader2, Mail } from "lucide-react";
+import toast from 'react-hot-toast';
 
 interface InicioSesionFormValues {
     email: string;
@@ -12,6 +17,7 @@ interface InicioSesionFormValues {
 }
 
 export default function InicioSesion() {
+    const { iniciarSesion } = useAuth()!;
     const { register, handleSubmit, formState, reset } = useForm<InicioSesionFormValues>({
         defaultValues: {
             email: '',
@@ -20,18 +26,24 @@ export default function InicioSesion() {
     });
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
+    const navigate = useNavigate();
+
     async function onSubmit(data: InicioSesionFormValues) {
-        console.log(data);
         setIsLoading(true);
 
-        // Simular carga del inicio de sesión
-        await new Promise((res) => {
-            setTimeout(() => {
-                setIsLoading(false);
-                reset();
-                res(null);
-            }, 3000)
+        const promesa = iniciarSesion({
+            email: data.email,
+            password: data.password
         })
+        await toast.promise(promesa, {
+            loading: 'Iniciando sesión...',
+            success: 'Sesión iniciada',
+            error: 'Ocurrió un error al iniciar sesión'
+        })
+
+        setIsLoading(false);
+        reset();
+        navigate("/");
     }
 
     const handleGoogleOauth = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
