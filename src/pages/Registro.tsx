@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 
@@ -18,7 +19,7 @@ interface RegistroFormValues {
 }
 
 export default function Registro() {
-    const { registrarUsuario } = useAuth()!;
+    const { registrarUsuario, iniciarSesionGoogle } = useAuth()!;
     const { register, handleSubmit, formState, reset } = useForm<RegistroFormValues>({
         defaultValues: {
             name: '',
@@ -26,6 +27,7 @@ export default function Registro() {
             password: '',
         }
     });
+    const navigate = useNavigate();
 
     const [isLoading, setIsLoading] = useState<boolean>(false)
 
@@ -47,10 +49,9 @@ export default function Registro() {
         reset();
     }
 
-    const handleGoogleOauth = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-        console.log(e);
-        //TODO: Implementar Google OAuth inicio de sesión
-        console.log("Inicio de sesión Google OAuth iniciado");
+    const handleGoogleOauth = async () => {
+        await iniciarSesionGoogle();
+        navigate("/");
     }
 
     return (
@@ -124,7 +125,7 @@ export default function Registro() {
                 <CardFooter>
                     <Button variant="outline" className="w-full" onClick={handleGoogleOauth}>
                         <Mail className="mr-2 h-4 w-4" />
-                        Registrar con Google
+                        Iniciar sesión con Google
                     </Button>
                 </CardFooter>
             </Card>

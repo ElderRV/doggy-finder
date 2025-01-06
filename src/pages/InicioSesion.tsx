@@ -17,16 +17,16 @@ interface InicioSesionFormValues {
 }
 
 export default function InicioSesion() {
-    const { iniciarSesion } = useAuth()!;
+    const { iniciarSesion, iniciarSesionGoogle } = useAuth()!;
     const { register, handleSubmit, formState, reset } = useForm<InicioSesionFormValues>({
         defaultValues: {
             email: '',
             password: '',
         }
     });
-    const [isLoading, setIsLoading] = useState<boolean>(false);
-
     const navigate = useNavigate();
+
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
     async function onSubmit(data: InicioSesionFormValues) {
         setIsLoading(true);
@@ -46,10 +46,9 @@ export default function InicioSesion() {
         navigate("/");
     }
 
-    const handleGoogleOauth = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-        console.log(e);
-        //TODO: Implementar Google OAuth inicio de sesión
-        console.log("Inicio de sesión Google OAuth iniciado");
+    const handleGoogleOauth = async () => {
+        await iniciarSesionGoogle();
+        navigate("/");
     }
 
     const handleForgotPassword = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
