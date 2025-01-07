@@ -19,7 +19,8 @@ function App(){
                     <Toaster />
                     <Routes>
                         <Route path="/" element={<Inicio />} />
-                        <Route path="/buscar-perro" element={<FormularioPerdido />} />
+                        <Route path="/publicar-perdido" element={<FormularioPerdido />} />
+                        
                         <Route path="/registro" element={<Registro />} />
                         <Route path="/inicio-sesion" element={<InicioSesion />} />
                     </Routes>

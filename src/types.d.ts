@@ -9,3 +9,8 @@ export interface AuthProviderValue {
 };
 
 export type AuthUser = User | undefined | null;
+
+export interface TypeCoordenadas {
+    longitud: number;
+    latitud: number;
+}
