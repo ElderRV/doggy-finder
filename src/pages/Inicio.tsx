@@ -5,7 +5,7 @@ import { Link } from "react-router";
 function Inicio(){
     return(
         <>
-            <header className="flex justify-center md:justify-end items-start md:items-center min-h-[calc(100dvh-52px)] text-white p-4 bg-no-repeat bg-cover bg-left-bottom [background-image:url(/hero.jpg);]">
+            <header className="flex justify-center md:justify-end items-start md:items-center min-h-[calc(100dvh-52px)] text-white p-4 bg-no-repeat bg-cover bg-left-bottom [background-image:url(/hero.webp);]">
                 <div className="w-1/2">
                     <h1 className="text-center font-bold text-[clamp(1.7rem,5vw,5rem)]">DoggyFinder</h1>
                 </div>
