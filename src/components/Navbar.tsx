@@ -16,9 +16,8 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { buttonVariants } from "./ui/button";
 import { ModeToggle } from "./ThemeToggle";
-import { Button, buttonVariants } from "./ui/button";
-import { cva } from "class-variance-authority";
 
 
 export default function Navbar() {
