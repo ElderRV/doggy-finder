@@ -3,33 +3,71 @@ import { useAuth } from "@/context/AuthProvider";
 
 import {
     NavigationMenu,
+    NavigationMenuContent,
     NavigationMenuItem,
     NavigationMenuLink,
     NavigationMenuList,
+    NavigationMenuTrigger,
     navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
-
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-  
+import { ModeToggle } from "./ThemeToggle";
+import { Button, buttonVariants } from "./ui/button";
+import { cva } from "class-variance-authority";
+
 
 export default function Navbar() {
     const { usuario, cerrarSesion } = useAuth()!;
 
     return (
-        <NavigationMenu className="max-w-full">
-            <NavigationMenuList className="w-screen px-8 py-2">
-                <NavigationMenuItem className="mr-auto">
-                    <Link to="/">
-                        <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                            Inicio
-                        </NavigationMenuLink>
-                    </Link>
-                </NavigationMenuItem>
+        <NavigationMenu className="mx-auto">
+            <NavigationMenuList className="w-screen max-w-screen-lg px-8 py-2">
+                <div className="flex mr-auto">
+                    <NavigationMenuItem>
+                        <Link to="/">
+                            <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                                Inicio
+                            </NavigationMenuLink>
+                        </Link>
+                    </NavigationMenuItem>
+                    {
+                        usuario && (
+                            <>
+                                <NavigationMenuItem>
+                                    <NavigationMenuTrigger>Publicar</NavigationMenuTrigger>
+                                    <NavigationMenuContent>
+                                        <div className="grid w-[300px] gap-3 p-4 md:w-[400px] md:grid-cols-2 lg:w-[500px]">
+                                            <Link to="/publicar-perdido" className={buttonVariants({ variant: "ghost" })}>
+                                                Publicar perdido
+                                            </Link>
+                                            <Link to="/publicar-encontrado" className={buttonVariants({ variant: "ghost" })}>
+                                                Publicar encontrado
+                                            </Link>
+                                        </div>
+                                    </NavigationMenuContent>
+                                </NavigationMenuItem>
+                                <NavigationMenuItem>
+                                    <NavigationMenuTrigger>Buscar</NavigationMenuTrigger>
+                                    <NavigationMenuContent>
+                                        <div className="grid w-[300px] gap-3 p-4 md:w-[400px] md:grid-cols-2 lg:w-[500px]">
+                                            <Link to="/buscar-perdidos" className={buttonVariants({ variant: "ghost" })}>
+                                                Buscar perdidos
+                                            </Link>
+                                            <Link to="/buscar-encontrados" className={buttonVariants({ variant: "ghost" })}>
+                                                Buscar encontrados
+                                            </Link>
+                                        </div>
+                                    </NavigationMenuContent>
+                                </NavigationMenuItem>
+                            </>
+                        )
+                    }
+                </div>
                 {
                     usuario ? (
                         usuario?.photoURL && (
@@ -61,6 +99,11 @@ export default function Navbar() {
                         </>
                     )
                 }
+                <NavigationMenuItem>
+                    <div className="ml-4">
+                        <ModeToggle />
+                    </div>
+                </NavigationMenuItem>
             </NavigationMenuList>
         </NavigationMenu>
     )
