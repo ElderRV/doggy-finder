@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 
 import { useAuth } from '@/context/AuthProvider';
+import useTitle from '@/hooks/useTitle';
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,7 +30,9 @@ export default function Registro() {
     });
     const navigate = useNavigate();
 
-    const [isLoading, setIsLoading] = useState<boolean>(false)
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+
+    useTitle("Registrarse | DoggyFinder");
 
     async function onSubmit(data: RegistroFormValues) {
         setIsLoading(true);

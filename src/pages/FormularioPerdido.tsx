@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
+import useTitle from "@/hooks/useTitle";
+
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -37,6 +39,8 @@ function FormularioPerdido(){
     });
     const [fotos, setFotos] = useState<TypeFotosNuevas>([]);
     const [coordenadas, setCoordenadas] = useState<TypeCoordenadas>({ longitud: -103, latitud: 21 });
+
+    useTitle("Publicar perdido | DoggyFinder");
 
     const onSubmit = ((data: FormularioPerdidoFormValues) => {
         let datos = {

@@ -1,15 +1,16 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router';
+import toast from 'react-hot-toast';
 
 import { useAuth } from '@/context/AuthProvider';
+import useTitle from '@/hooks/useTitle';
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Mail } from "lucide-react";
-import toast from 'react-hot-toast';
 
 interface InicioSesionFormValues {
     email: string;
@@ -27,6 +28,8 @@ export default function InicioSesion() {
     const navigate = useNavigate();
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
+
+    useTitle("Iniciar sesión | DoggyFinder");
 
     async function onSubmit(data: InicioSesionFormValues) {
         setIsLoading(true);
