@@ -4,6 +4,7 @@ import { Toaster } from "react-hot-toast";
 import { ThemeProvider } from "./context/ThemeProvider";
 import AuthProvider from "@/context/AuthProvider";
 
+import ScrollToTop from "./components/ScrollToTop";
 import Navbar from "@/components/Navbar";
 import Inicio from "@/pages/Inicio";
 import FormularioPerdido from "./pages/FormularioPerdido";
@@ -15,15 +16,17 @@ function App(){
         <BrowserRouter>
             <ThemeProvider>
                 <AuthProvider>
-                    <Navbar />
-                    <Toaster />
-                    <Routes>
-                        <Route path="/" element={<Inicio />} />
-                        <Route path="/publicar-perdido" element={<FormularioPerdido />} />
-                        
-                        <Route path="/registro" element={<Registro />} />
-                        <Route path="/inicio-sesion" element={<InicioSesion />} />
-                    </Routes>
+                    <ScrollToTop>
+                        <Navbar />
+                        <Toaster />
+                        <Routes>
+                            <Route path="/" element={<Inicio />} />
+                            <Route path="/publicar-perdido" element={<FormularioPerdido />} />
+                            
+                            <Route path="/registro" element={<Registro />} />
+                            <Route path="/inicio-sesion" element={<InicioSesion />} />
+                        </Routes>
+                    </ScrollToTop>
                 </AuthProvider>
             </ThemeProvider>
         </BrowserRouter>
