@@ -1,6 +1,7 @@
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Keyboard, Pagination, Autoplay } from "swiper/modules";
 import { CalendarDaysIcon, PhoneIcon, User } from "lucide-react";
+import useTitle from "@/hooks/useTitle";
 
 import { formatDistance } from "date-fns";
 import { es } from "date-fns/locale";
@@ -27,6 +28,9 @@ function DescripcionPerdido(){
         direccion: { longitud: -103, latitud: 21 },
         fotos: ["/hero.webp", "/hero.webp"]
     }
+
+    // TODO: Después utilizar un estado, al obtener en la base de datos el nombre, guardarlo en el estado para que se actualice el título
+    useTitle(`${publicacion.nombre} | DoggyFinder`);
 
     return(
         <main className="container max-w-screen-lg mx-auto px-8 my-8">
