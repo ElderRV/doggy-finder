@@ -2,6 +2,9 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Keyboard, Pagination, Autoplay } from "swiper/modules";
 import { CalendarDaysIcon, PhoneIcon, User } from "lucide-react";
 
+import { formatDistance } from "date-fns";
+import { es } from "date-fns/locale";
+
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 import MapaUbicacion from "@/components/MapaUbicacion";
@@ -15,7 +18,7 @@ import "swiper/css/keyboard";
 function DescripcionPerdido(){
     const publicacion = {
         id: "id",
-        fecha: Date.now(),
+        fecha: 1736379857428,
         idCreador: "idCreador",
         nombreCreador: "Fulanita",
         nombre: "Perro",
@@ -56,7 +59,7 @@ function DescripcionPerdido(){
             }
 
             <div className="flex flex-col flex-wrap gap-4">
-                <div className="flex justify-between">
+                <div className="flex flex-wrap gap-4 justify-between">
                     <span className="flex gap-2">
                         <User />
                         {publicacion.nombreCreador}
@@ -70,7 +73,16 @@ function DescripcionPerdido(){
 
                 <span className="flex gap-2 self-end">
                     <CalendarDaysIcon />
-                    Ayer
+                    {
+                        formatDistance(
+                            new Date(publicacion.fecha),
+                            new Date(),
+                            {
+                                addSuffix: true,
+                                locale: es
+                            }
+                        )
+                    }
                 </span>
             </div>
 

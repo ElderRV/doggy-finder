@@ -5,7 +5,7 @@ function ListaPerdidos(){
     const listaPerdidos: PublicacionPerdidoDB[] = [
         {
             id: "id",
-            fecha: Date.now(),
+            fecha: 1736469857428,
             idCreador: "idCreador",
             nombreCreador: "Fulanita",
             nombre: "Nombre del perro",
@@ -16,7 +16,7 @@ function ListaPerdidos(){
         },
         {
             id: "id2",
-            fecha: Date.now(),
+            fecha: 1736379857428,
             idCreador: "idCreador2",
             nombreCreador: "Fulanito Pérez",
             nombre: "Nombre del perro2",
@@ -27,13 +27,13 @@ function ListaPerdidos(){
         }
     ];
     return(
-        <section className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,250px),1fr))] gap-8">
+        <section className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,300px),1fr))] gap-8">
             {
                 listaPerdidos === undefined ? (
                     <h3 className="text-center my-4">Cargando...</h3>
                 ) : listaPerdidos.length > 0 ? (
                     listaPerdidos.map(data => (
-                        <CardPerro data={data} />
+                        <CardPerro data={data} key={data.id} />
                     ))
                 ) : (
                     <h3 className="text-center my-4">No hay publicaciones</h3>
