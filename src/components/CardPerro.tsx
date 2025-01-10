@@ -12,8 +12,8 @@ function CardPerro({ data: { id, nombreCreador, nombre, descripcion, telefono, f
                         {/* //TODO: Poner un slider para mostrar las fotos (o solamente mostrar una foto en esta previsualización) */}
                         {
                             fotos.length > 0 && (
-                                fotos.map(foto => (
-                                    <img className="size-full border shadow !m-0 rounded-md" src={foto} />
+                                fotos.map((foto, index) => (
+                                    <img className="size-full border shadow !m-0 rounded-md" src={foto} key={index} />
                                 ))
                             )
                         }

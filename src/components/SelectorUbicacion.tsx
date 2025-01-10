@@ -4,13 +4,13 @@ import mapboxgl, { LngLat, Map, Marker } from "mapbox-gl";
 import 'mapbox-gl/dist/mapbox-gl.css';
 
 import { obtenerUbicacion } from "@/lib/utils";
-import { TypeCoordenadas } from "@/types";
+import { Coordenadas } from "@/types";
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
 interface TypeProps {
     name: string;
-    value: TypeCoordenadas;
+    value: Coordenadas;
     onInput: (prop: any) => any;
     modoEdicion: boolean;
     className: string;
