@@ -10,7 +10,30 @@ export interface AuthProviderValue {
 
 export type AuthUser = User | undefined | null;
 
-export interface TypeCoordenadas {
+export interface PublicacionPerdidoForm {
+    nombre: string;
+    descripcion: string;
+    telefono: string;
+    fotos: File[];
+    direccion: Coordenadas;
+}
+
+export type PublicacionPerdidoDB = Omit<PublicacionPerdidoForm, "fotos"> & {
+    id: string;
+    idCreador: string;
+    nombreCreador: string;
+    fotos: string[];
+}
+
+export interface FotoNueva {
+    id: string;
+    url: string;
+    file: File;
+}
+
+export type FotosNuevas = FotoNueva[];
+
+export interface Coordenadas {
     longitud: number;
     latitud: number;
 }

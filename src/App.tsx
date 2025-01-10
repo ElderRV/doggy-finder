@@ -6,8 +6,11 @@ import AuthProvider from "@/context/AuthProvider";
 
 import ScrollToTop from "./components/ScrollToTop";
 import Navbar from "@/components/Navbar";
+
 import Inicio from "@/pages/Inicio";
 import FormularioPerdido from "./pages/FormularioPerdido";
+import BuscarPerdidos from "./pages/BuscarPerdidos";
+
 import Registro from "@/pages/Registro";
 import InicioSesion from "@/pages/InicioSesion";
 
@@ -22,6 +25,7 @@ function App(){
                         <Routes>
                             <Route path="/" element={<Inicio />} />
                             <Route path="/publicar-perdido" element={<FormularioPerdido />} />
+                            <Route path="/buscar-perdidos" element={<BuscarPerdidos />} />
                             
                             <Route path="/registro" element={<Registro />} />
                             <Route path="/inicio-sesion" element={<InicioSesion />} />

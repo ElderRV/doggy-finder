@@ -9,27 +9,11 @@ import { Label } from "@/components/ui/label";
 import { XIcon } from "lucide-react";
 
 import SelectorDeUbicacion from "@/components/SelectorUbicacion";
-import { TypeCoordenadas } from "@/types";
+import { FotosNuevas, PublicacionPerdidoForm, Coordenadas } from "@/types";
 import { Textarea } from "@/components/ui/textarea";
 
-interface FormularioPerdidoFormValues {
-    nombre: string;
-    descripcion: string;
-    telefono: string;
-    fotos: File[];
-    direccion: TypeCoordenadas;
-}
-
-interface TypeFotoNueva {
-    id: string;
-    url: string;
-    file: File;
-}
-
-type TypeFotosNuevas = TypeFotoNueva[];
-
 function FormularioPerdido(){
-    const { register, handleSubmit, formState, reset } = useForm<FormularioPerdidoFormValues>({
+    const { register, handleSubmit, formState, reset } = useForm<PublicacionPerdidoForm>({
         defaultValues: {
             nombre: "",
             descripcion: "",
@@ -37,15 +21,17 @@ function FormularioPerdido(){
             fotos: [],
         }
     });
-    const [fotos, setFotos] = useState<TypeFotosNuevas>([]);
-    const [coordenadas, setCoordenadas] = useState<TypeCoordenadas>({ longitud: -103, latitud: 21 });
+    const [fotos, setFotos] = useState<FotosNuevas>([]);
+    const [coordenadas, setCoordenadas] = useState<Coordenadas>({ longitud: -103, latitud: 21 });
 
     useTitle("Publicar perdido | DoggyFinder");
 
-    const onSubmit = ((data: FormularioPerdidoFormValues) => {
+    const onSubmit = ((data: PublicacionPerdidoForm) => {
         let datos = {
             ...data,
-            ...coordenadas
+            ...coordenadas,
+            // TODO: Poner la id del creador de la publicacion
+            // TODO: Después se tiene que poner el nombreCreador para no tener que consultar en cada Card?
         }
         console.log(datos);
 
@@ -59,7 +45,7 @@ function FormularioPerdido(){
         console.log(fotos);
 
         // Se crea la URL con el Blob para la previsualización
-        let fotosNuevas: TypeFotosNuevas = [];
+        let fotosNuevas: FotosNuevas = [];
         for(let file of files){
             const url = URL.createObjectURL(file);
 
@@ -91,7 +77,7 @@ function FormularioPerdido(){
 
                 {
                     fotos.length > 0 && (
-                        <div className="m-4 grid grid-cols-[repeat(auto-fill,minmax(100px,1fr))] gap-4">
+                        <div className="m-4 grid grid-cols-[repeat(auto-fill,minmax(min(100%,100px),1fr))] gap-4">
                             {
                                 fotos.map(({id, url}) => (
                                     <div className="relative" key={id}>
