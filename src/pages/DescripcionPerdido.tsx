@@ -10,10 +10,15 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 import MapaUbicacion from "@/components/MapaUbicacion";
 
+// @ts-ignore
 import "swiper/css";
+// @ts-ignore
 import "swiper/css/navigation";
+// @ts-ignore
 import "swiper/css/pagination";
+// @ts-ignore
 import "swiper/css/autoplay";
+// @ts-ignore
 import "swiper/css/keyboard";
 
 function DescripcionPerdido(){
