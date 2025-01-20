@@ -39,7 +39,7 @@ function DescripcionPerdido(){
         .then(setPublicacion)
     }, [id])
 
-    useTitle(`${publicacion?.nombre} | DoggyFinder`);
+    useTitle(`${publicacion?.nombre ?? "Cargando descripción..."} | DoggyFinder`);
 
     if(!publicacion) return (
         <main className="container max-w-screen-lg mx-auto px-8 my-8">
