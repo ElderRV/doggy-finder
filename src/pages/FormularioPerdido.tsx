@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router";
 
 import useTitle from "@/hooks/useTitle";
 import { useAuth } from "@/context/AuthProvider";
@@ -18,7 +19,7 @@ import toast from "react-hot-toast";
 function FormularioPerdido(){
     const { usuario } = useAuth()!;
 
-    const { register, handleSubmit, formState, reset } = useForm<PublicacionPerdidoForm>({
+    const { register, handleSubmit, formState } = useForm<PublicacionPerdidoForm>({
         defaultValues: {
             nombre: "",
             descripcion: "",
@@ -28,6 +29,8 @@ function FormularioPerdido(){
     });
     const [fotos, setFotos] = useState<FotosNuevas>([]);
     const [coordenadas, setCoordenadas] = useState<Coordenadas>({ longitud: -103, latitud: 21 });
+
+    const navigate = useNavigate();
 
     useTitle("Publicar perdido | DoggyFinder");
 
@@ -48,7 +51,7 @@ function FormularioPerdido(){
             error: "Hubo un error al publicar el perro perdido"
         })
 
-        reset();
+        navigate("/buscar-perdidos");
     }
 
     // Mostrar la vista previa de las imágenes que se están subiendo

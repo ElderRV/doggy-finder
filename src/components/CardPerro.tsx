@@ -16,7 +16,7 @@ function CardPerro({ data: { id, fecha, nombreCreador, nombre, descripcion, tele
                         {
                             fotos.length > 0 && (
                                 fotos.map((foto, index) => (
-                                    <img className="size-full border shadow !m-0 rounded-md" src={foto} key={index} />
+                                    <img className="h-[200px] w-full object-cover border shadow !m-0 rounded-md" src={foto} key={index} />
                                 ))
                             )
                         }

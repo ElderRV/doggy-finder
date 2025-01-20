@@ -2,7 +2,7 @@
 import { initializeApp } from "firebase/app";
 import { collection, doc, getDocs, getFirestore, orderBy, query, setDoc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
-import { getStorage, ref, uploadBytes } from "firebase/storage";
+import { getStorage } from "firebase/storage";
 
 import { PublicacionPerdidoDB, PublicacionPerdidoForm } from "./types";
 
