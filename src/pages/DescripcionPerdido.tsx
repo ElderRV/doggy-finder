@@ -1,7 +1,11 @@
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Keyboard, Pagination, Autoplay } from "swiper/modules";
-import { CalendarDaysIcon, PhoneIcon, User } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router";
+import { obtenerPublicacionPerdido } from "@/firebase";
 import useTitle from "@/hooks/useTitle";
+
+import { PublicacionPerdidoDB } from "@/types";
+
+import { CalendarDaysIcon, PhoneIcon, User } from "lucide-react";
 
 import { formatDistance } from "date-fns";
 import { es } from "date-fns/locale";
@@ -9,6 +13,9 @@ import { es } from "date-fns/locale";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 import MapaUbicacion from "@/components/MapaUbicacion";
+
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Keyboard, Pagination, Autoplay } from "swiper/modules";
 
 // @ts-ignore
 import "swiper/css";
@@ -22,20 +29,23 @@ import "swiper/css/autoplay";
 import "swiper/css/keyboard";
 
 function DescripcionPerdido(){
-    const publicacion = {
-        id: "id",
-        fecha: 1736379857428,
-        idCreador: "idCreador",
-        nombreCreador: "Fulanita",
-        nombre: "Perro",
-        descripcion: "Es un perro negro con blanco de tamaño mediano. Se perdió con una correa azul. Se perdió por la colonia X.",
-        telefono: "1231231231",
-        direccion: { longitud: -103, latitud: 21 },
-        fotos: ["/hero.webp", "/hero.webp"]
-    }
+    const { id } = useParams();
+    const [publicacion, setPublicacion] = useState<PublicacionPerdidoDB | undefined>(undefined);
 
-    // TODO: Después utilizar un estado, al obtener en la base de datos el nombre, guardarlo en el estado para que se actualice el título
-    useTitle(`${publicacion.nombre} | DoggyFinder`);
+    useEffect(() => {
+        if(!id) return;
+
+        obtenerPublicacionPerdido(id)
+        .then(setPublicacion)
+    }, [id])
+
+    useTitle(`${publicacion?.nombre} | DoggyFinder`);
+
+    if(!publicacion) return (
+        <main className="container max-w-screen-lg mx-auto px-8 my-8">
+            <h1 className="text-center font-bold text-3xl my-8">Cargando...</h1>
+        </main>
+    )
 
     return(
         <main className="container max-w-screen-lg mx-auto px-8 my-8">

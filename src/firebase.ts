@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { collection, doc, getDocs, getFirestore, orderBy, query, setDoc } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, getFirestore, orderBy, query, setDoc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 
@@ -41,8 +41,11 @@ export async function obtenerPublicacionesEncontrados(){
 
 }
 
-export async function obtenerPublicacionPerdido(){
+export async function obtenerPublicacionPerdido(id: string){
+    const docRef = doc(db, "perdidos", id);
+    const documento = await getDoc(docRef);
 
+    return documento.data() as PublicacionPerdidoDB;
 }
 
 export async function obtenerPublicacionEncontrado(){
