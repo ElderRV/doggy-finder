@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 
 import useTitle from "@/hooks/useTitle";
+import { useAuth } from "@/context/AuthProvider";
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,8 +12,12 @@ import { XIcon } from "lucide-react";
 import SelectorDeUbicacion from "@/components/SelectorUbicacion";
 import { FotosNuevas, PublicacionPerdidoForm, Coordenadas } from "@/types";
 import { Textarea } from "@/components/ui/textarea";
+import { crearPublicacionPerdido } from "@/firebase";
+import toast from "react-hot-toast";
 
 function FormularioPerdido(){
+    const { usuario } = useAuth()!;
+
     const { register, handleSubmit, formState, reset } = useForm<PublicacionPerdidoForm>({
         defaultValues: {
             nombre: "",
@@ -26,23 +31,36 @@ function FormularioPerdido(){
 
     useTitle("Publicar perdido | DoggyFinder");
 
-    const onSubmit = ((data: PublicacionPerdidoForm) => {
+    const onSubmit = async (data: PublicacionPerdidoForm) => {
+        if(!usuario) return;
+
         let datos = {
+            idCreador: usuario.uid,
+            nombreCreador: usuario.displayName ?? "Anónimo",
+            // @ts-ignore
+            direccion: coordenadas, // Sobreescribir la dirección
             ...data,
-            ...coordenadas,
-            // TODO: Poner la id del creador de la publicacion
-            // TODO: Después se tiene que poner el nombreCreador para no tener que consultar en cada Card?
         }
-        console.log(datos);
+        const promesa = crearPublicacionPerdido(datos);
+        await toast.promise(promesa, {
+            loading: "Publicando perro perdido...",
+            success: "Perro perdido publicado",
+            error: "Hubo un error al publicar el perro perdido"
+        })
 
         reset();
-    })
+    }
 
     // Mostrar la vista previa de las imágenes que se están subiendo
     const handleFoto = (e: any) => {
         const files = e.target.files;
-        if(files.length <= 0) return;
-        console.log(fotos);
+
+        // Si no se suben fotos, se limpia el estado
+        // para que coincida el estado del input y los blobs de las imagenes
+        if(files.length <= 0){
+            setFotos([]);
+            return;
+        }
 
         // Se crea la URL con el Blob para la previsualización
         let fotosNuevas: FotosNuevas = [];
