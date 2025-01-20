@@ -5,6 +5,7 @@ import { formatDistance } from "date-fns";
 import { es } from "date-fns/locale";
 
 import { Card, CardContent, CardHeader, CardDescription } from "./ui/card";
+import { PhoneIcon } from "lucide-react";
 
 function CardPerro({ data: { id, fecha, nombreCreador, nombre, descripcion, telefono, fotos }}: { data: PublicacionPerdidoDB }){
     return(
@@ -38,10 +39,13 @@ function CardPerro({ data: { id, fecha, nombreCreador, nombre, descripcion, tele
                         </span>
                     </CardDescription>
                 </CardHeader>
-                <CardContent className="flex flex-col">
+                <CardContent className="flex flex-col gap-4">
                     <h3 className="text-center font-bold text-lg mb-2">{nombre}</h3>
                     <p>{descripcion}</p>
-                    <span>{telefono}</span>
+                    <span className="flex gap-2 items-center">
+                        <PhoneIcon className="size-5" />
+                        {telefono}
+                    </span>
                 </CardContent>
             </Link>
         </Card>
