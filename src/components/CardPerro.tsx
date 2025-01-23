@@ -7,18 +7,49 @@ import { es } from "date-fns/locale";
 import { Card, CardContent, CardHeader, CardDescription } from "./ui/card";
 import { PhoneIcon } from "lucide-react";
 
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Keyboard, Pagination, Autoplay } from "swiper/modules";
+
+// @ts-ignore
+import "swiper/css";
+// @ts-ignore
+import "swiper/css/navigation";
+// @ts-ignore
+import "swiper/css/pagination";
+// @ts-ignore
+import "swiper/css/autoplay";
+// @ts-ignore
+import "swiper/css/keyboard";
+
 function CardPerro({ data: { id, fecha, nombreCreador, nombre, descripcion, telefono, fotos }}: { data: PublicacionPerdidoDB }){
     return(
         <Card key={id}>
             <Link to={`/buscar-perdidos/${id}`}>
                 <CardHeader>
                     <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,100px),1fr))] gap-4">
-                        {/* //TODO: Poner un slider para mostrar las fotos (o solamente mostrar una foto en esta previsualización) */}
                         {
                             fotos.length > 0 && (
-                                fotos.map((foto, index) => (
-                                    <img className="h-[200px] w-full object-cover border shadow !m-0 rounded-md" src={foto} key={index} />
-                                ))
+                                <Swiper
+                                    className="w-full aspect-video select-none"
+                                    spaceBetween={20}
+                                    slidesPerView={1}
+                                    modules={[Navigation, Pagination, Keyboard, Autoplay]}
+                                    navigation
+                                    pagination={{ clickable: true }}
+                                    keyboard={{
+                                        enabled: true
+                                    }}
+                                    autoplay={{ delay: 5000, pauseOnMouseEnter: true, disableOnInteraction: true }}
+                                    loop
+                                >
+                                    {
+                                        fotos.map((foto, index) => (
+                                            <SwiperSlide key={index}>
+                                                <img className="size-full object-contain" src={foto} />
+                                            </SwiperSlide>
+                                        ))
+                                    }
+                                </Swiper>
                             )
                         }
                     </div>
