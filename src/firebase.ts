@@ -2,7 +2,7 @@
 import { initializeApp } from "firebase/app";
 import { collection, doc, getDoc, getDocs, getFirestore, orderBy, query, setDoc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
-import { getStorage } from "firebase/storage";
+import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 
 import { PublicacionPerdidoDB, PublicacionPerdidoForm } from "./types";
 
@@ -66,39 +66,25 @@ export async function crearPublicacionPerdido(datos: PublicacionPerdidoForm & { 
         fotos: []
     }
 
-    // TODO: Subir las fotos de la publicación
-    // if(datos.fotos.length > 0){
-    //     try{
-    //         // Subir la foto de la publicacion
-    //         // TODO: Cada foto va a tener su propia id, usar el nombre del archivo
-    //         const storageRef = ref(storage, `perdidos/${nuevaPublicacion.id}`);
-    //         await uploadBytes(storageRef, publicacion.fileFoto);
-        
-    //         nuevaPublicacion.url = await getDownloadURL(ref(storage, `perdidos/${nuevaPublicacion.id}`));
-    //     } catch(error){
-    //         // Error al subir la foto
-    //         console.error(error);
-    //     }
-    // }
+    // Subir las fotos de la publicación
+    if(datos.fotos.length > 0){
+        try{
+            let fotos = [...datos.fotos].map(async fileFoto => {
+                let srcRef = `perdidos/${nuevaPublicacion.id}/${nuevaPublicacion.fecha}-${fileFoto.name}`;
 
-    //? Simular la subida de imagenes
-    let promisesArray = [...datos.fotos].map(async foto => {
-        const fileReader = new FileReader();
-        
-        return new Promise(res => {
-            fileReader.onload = data => {
-                const url = data.target?.result as string;
+                // Subir cada foto
+                const storageRef = ref(storage, srcRef);
+                await uploadBytes(storageRef, fileFoto);
 
-                res(url);
-            }
+                return await getDownloadURL(ref(storage, srcRef));
+            })
 
-            fileReader.readAsDataURL(foto);
-        })
-    })
-
-    let fotos = await Promise.all(promisesArray) as string[];
-
-    nuevaPublicacion.fotos = fotos;
+            nuevaPublicacion.fotos = await Promise.all(fotos) as string[];
+        } catch(error){
+            // Error al subir la foto
+            console.error(error);
+        }
+    }
 
     try{
         // Crear un documento en la colección de perdidos
