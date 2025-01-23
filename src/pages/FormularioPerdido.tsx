@@ -24,7 +24,6 @@ function FormularioPerdido(){
             nombre: "",
             descripcion: "",
             telefono: "",
-            fotos: [],
         }
     });
     const [fotos, setFotos] = useState<FotosNuevas>([]);
@@ -36,12 +35,18 @@ function FormularioPerdido(){
 
     const onSubmit = async (data: PublicacionPerdidoForm) => {
         if(!usuario) return;
+        // Si no hay imagenes seleccionadas, se muestra un error
+        if(fotos.length <= 0){
+            toast.error("Selecciona al menos una foto");
+            return;
+        }
 
         let datos = {
             idCreador: usuario.uid,
             nombreCreador: usuario.displayName ?? "Anónimo",
             // @ts-ignore
             direccion: coordenadas, // Sobreescribir la dirección
+            fotos: fotos.map(foto => foto.file),
             ...data,
         }
         const promesa = crearPublicacionPerdido(datos);
@@ -119,13 +124,7 @@ function FormularioPerdido(){
                     <div className={buttonVariants({ variant: "secondary", className: "cursor-pointer" })}>Elegir imágenes</div>
                     <Input
                         className="hidden"
-                        {...register("fotos", {
-                            required: {
-                                value: true,
-                                message: "Selecciona al menos una foto"
-                            },
-                            onChange: handleFoto
-                        })}
+                        onChange={handleFoto}
                         type="file"
                         multiple
                         accept="image/*"
@@ -134,11 +133,6 @@ function FormularioPerdido(){
                         {fotos.length}
                         {fotos.length == 1 ? " imagen seleccionada" : " imágenes seleccionadas"}
                     </span>
-                    {
-                        formState.errors.fotos && (
-                            <span className="text-sm text-red-500">{formState.errors.fotos.message}</span>
-                        )
-                    }
                 </Label>
 
                 <Label className="flex flex-col gap-2">

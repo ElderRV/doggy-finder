@@ -52,7 +52,7 @@ export async function obtenerPublicacionEncontrado(){
 
 }
 
-export async function crearPublicacionPerdido(datos: PublicacionPerdidoForm & { idCreador: string, nombreCreador: string }){
+export async function crearPublicacionPerdido(datos: PublicacionPerdidoForm & { idCreador: string, nombreCreador: string, fotos: File[] }){
     let nuevaPublicacion: PublicacionPerdidoDB = {
         id: Date.now() + datos.idCreador,
         fecha: Date.now(),

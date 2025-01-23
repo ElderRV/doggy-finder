@@ -14,7 +14,6 @@ export interface PublicacionPerdidoForm {
     nombre: string;
     descripcion: string;
     telefono: string;
-    fotos: File[];
     direccion: Coordenadas;
 }
 
