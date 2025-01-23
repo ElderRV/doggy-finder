@@ -1,16 +1,18 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router";
-import { obtenerPublicacionPerdido } from "@/firebase";
+import { useNavigate, useParams } from "react-router";
+import { borrarPublicacion, obtenerPublicacionPerdido } from "@/firebase";
 import useTitle from "@/hooks/useTitle";
+import toast from "react-hot-toast";
 
 import { PublicacionPerdidoDB } from "@/types";
 
-import { CalendarDaysIcon, PhoneIcon, User } from "lucide-react";
+import { CalendarDaysIcon, Edit, PhoneIcon, Trash2, User } from "lucide-react";
 
 import { formatDistance } from "date-fns";
 import { es } from "date-fns/locale";
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 import MapaUbicacion from "@/components/MapaUbicacion";
 
@@ -31,6 +33,7 @@ import "swiper/css/keyboard";
 function DescripcionPerdido(){
     const { id } = useParams();
     const [publicacion, setPublicacion] = useState<PublicacionPerdidoDB | undefined>(undefined);
+    const navigate = useNavigate();
 
     useEffect(() => {
         if(!id) return;
@@ -40,6 +43,19 @@ function DescripcionPerdido(){
     }, [id])
 
     useTitle(`${publicacion?.nombre ?? "Cargando descripción..."} | DoggyFinder`);
+
+    const handleBorrarPublicacion = async () => {
+        if(!id) return;
+
+        const promesa = borrarPublicacion(id, "perdidos");
+
+        await toast.promise(promesa, {
+            loading: "Borrando publicación...",
+            success: "Publicación borrada",
+            error: "Error al borrar la publicación"
+        })
+        navigate("/buscar-perdidos");
+    }
 
     if(!publicacion) return (
         <main className="container max-w-screen-lg mx-auto px-8 my-8">
@@ -76,6 +92,23 @@ function DescripcionPerdido(){
                     </Swiper>
                 )
             }
+
+            <Card className="mx-auto my-8 max-w-prose">
+                <CardHeader>
+                    <h2 className="font-bold text-xl">Administración</h2>
+                </CardHeader>
+
+                <CardContent className="flex gap-2 justify-end">
+                    <Button>
+                        <Edit />
+                        Editar
+                    </Button>
+                    <Button variant="destructive" onClick={handleBorrarPublicacion}>
+                        <Trash2 />
+                        Borrar
+                    </Button>
+                </CardContent>
+            </Card>
 
             <div className="flex flex-col flex-wrap gap-4">
                 <div className="flex flex-wrap gap-4 justify-between">
@@ -115,7 +148,7 @@ function DescripcionPerdido(){
                 </CardContent>
             </Card>
 
-            <div className="flex flex-col gap-4 items-center  my-8">
+            <div className="flex flex-col gap-4 items-center my-8">
                 <h2 className="font-bold text-xl">Ubicación</h2>
                 
                 <MapaUbicacion className="border shadow rounded-md" ubicacion={publicacion.direccion} />

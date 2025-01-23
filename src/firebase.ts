@@ -1,8 +1,8 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { collection, doc, getDoc, getDocs, getFirestore, orderBy, query, setDoc } from "firebase/firestore";
+import { collection, deleteDoc, doc, getDoc, getDocs, getFirestore, orderBy, query, setDoc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
-import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
+import { deleteObject, getDownloadURL, getStorage, listAll, ref, uploadBytes } from "firebase/storage";
 
 import { PublicacionPerdidoDB, PublicacionPerdidoForm } from "./types";
 
@@ -94,5 +94,27 @@ export async function crearPublicacionPerdido(datos: PublicacionPerdidoForm & { 
     } catch(error){
         // Error al subir el documento de la publicación
         console.error(error);
+    }
+}
+
+export async function borrarPublicacion(idPublicacion: string, coleccion: string){
+    // Borrar publicación
+    try{
+        await deleteDoc(doc(db, coleccion, idPublicacion));
+    } catch(error){
+        console.error("Error al borrar la publicación", error);
+    }
+
+    // Borrar imágenes
+    try{
+        const listResult = await listAll(ref(storage, `${coleccion}/${idPublicacion}`));
+
+        const promesas = [...listResult.items].map(async item => {
+            await deleteObject(item);
+        })
+
+        await Promise.all(promesas);
+    } catch(error){
+        console.error("Error al borrar las imágenes de la publicación", error);
     }
 }
