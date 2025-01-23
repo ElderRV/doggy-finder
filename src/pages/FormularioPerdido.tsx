@@ -185,7 +185,6 @@ function FormularioPerdido(){
                             message: "Introduce 10 dígitos"
                         },
                         pattern: {
-                            // TODO: Regex que como máximo sea también 10, porque aquí solo me está aceptando el mínimo
                             value: /\d{10}/,
                             message: "Introduce 10 dígitos"
                         }
