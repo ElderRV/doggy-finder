@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { collection, deleteDoc, doc, getDoc, getDocs, getFirestore, orderBy, query, setDoc } from "firebase/firestore";
+import { collection, deleteDoc, doc, getDoc, getDocs, getFirestore, orderBy, query, setDoc, updateDoc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { deleteObject, getDownloadURL, getStorage, listAll, ref, uploadBytes } from "firebase/storage";
 
@@ -91,6 +91,63 @@ export async function crearPublicacionPerdido(datos: PublicacionPerdidoForm & { 
         await setDoc(doc(db, "perdidos", nuevaPublicacion.id), nuevaPublicacion);
     
         return nuevaPublicacion;
+    } catch(error){
+        // Error al subir el documento de la publicación
+        console.error(error);
+    }
+}
+
+export async function editarPublicacionPerdido(id: string, datos: PublicacionPerdidoForm & { fotosDB: {url: string, borrar: boolean}[], fotos: File[] }){
+    console.log(datos);
+    let publicacion = await obtenerPublicacionPerdido(id);
+    if(!publicacion) return;
+
+    // Se sobreescriben los campos
+    publicacion = {
+        ...publicacion,
+        nombre: datos.nombre,
+        descripcion: datos.descripcion,
+        telefono: datos.telefono,
+        direccion: datos.direccion
+    }
+
+    // Borrar fotos que ya están en la base de datos y fueron marcadas para borrar
+    try{
+        const fotosBorrar = datos.fotosDB.filter(foto => foto.borrar);
+        fotosBorrar.forEach(foto => {
+            deleteObject(ref(storage, foto.url));
+        })
+    } catch(error){
+        console.error(error);
+    }
+
+    // Subir las fotos nuevas
+    if(datos.fotos.length > 0){
+        try{
+            let fotos = [...datos.fotos].map(async fileFoto => {
+                let srcRef = `perdidos/${id}/${publicacion.fecha}-${fileFoto.name}`;
+
+                // Subir cada foto
+                const storageRef = ref(storage, srcRef);
+                await uploadBytes(storageRef, fileFoto);
+
+                return await getDownloadURL(ref(storage, srcRef));
+            })
+
+            const fotosAnteriores = datos.fotosDB.filter(foto => !foto.borrar).map(foto => foto.url);
+            const nuevasFotos = await Promise.all(fotos) as string[];
+            publicacion.fotos = [...fotosAnteriores, ...nuevasFotos];
+        } catch(error){
+            // Error al subir la foto
+            console.error(error);
+        }
+    }
+
+    try{
+        // Editar el documento
+        await updateDoc(doc(db, "perdidos", id), publicacion);
+    
+        return publicacion;
     } catch(error){
         // Error al subir el documento de la publicación
         console.error(error);

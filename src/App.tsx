@@ -26,6 +26,7 @@ function App(){
                         <Routes>
                             <Route path="/" element={<Inicio />} />
                             <Route path="/publicar-perdido" element={<FormularioPerdido />} />
+                            <Route path="/editar-perdido/:id" element={<FormularioPerdido />} />
                             <Route path="/buscar-perdidos" element={<BuscarPerdidos />} />
                             <Route path="/buscar-perdidos/:id" element={<DescripcionPerdido />} />
                             

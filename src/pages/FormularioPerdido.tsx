@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 
 import useTitle from "@/hooks/useTitle";
 import { useAuth } from "@/context/AuthProvider";
@@ -13,48 +13,76 @@ import { XIcon } from "lucide-react";
 import SelectorDeUbicacion from "@/components/SelectorUbicacion";
 import { FotosNuevas, PublicacionPerdidoForm, Coordenadas } from "@/types";
 import { Textarea } from "@/components/ui/textarea";
-import { crearPublicacionPerdido } from "@/firebase";
+import { crearPublicacionPerdido, editarPublicacionPerdido, obtenerPublicacionPerdido } from "@/firebase";
 import toast from "react-hot-toast";
 
 function FormularioPerdido(){
     const { usuario } = useAuth()!;
+    const { id } = useParams();
 
-    const { register, handleSubmit, formState } = useForm<PublicacionPerdidoForm>({
+    const { register, handleSubmit, formState, reset } = useForm<PublicacionPerdidoForm>({
         defaultValues: {
             nombre: "",
             descripcion: "",
             telefono: "",
         }
     });
+    const [fotosDB, setFotosDB] = useState<{url: string, borrar: boolean}[]>([]);
     const [fotos, setFotos] = useState<FotosNuevas>([]);
     const [coordenadas, setCoordenadas] = useState<Coordenadas>({ longitud: -103, latitud: 21 });
+    const [titulo, setTitulo] = useState("Publicar perdido | DoggyFinder");
 
     const navigate = useNavigate();
 
-    useTitle("Publicar perdido | DoggyFinder");
+    useTitle(titulo);
 
     const onSubmit = async (data: PublicacionPerdidoForm) => {
         if(!usuario) return;
-        // Si no hay imagenes seleccionadas, se muestra un error
-        if(fotos.length <= 0){
-            toast.error("Selecciona al menos una foto");
-            return;
-        }
+        
+        if(!id){
+            //? Si no hay ID, se está creando una nueva publicación
+            // Si no hay imagenes seleccionadas, se muestra un error
+            if(fotos.length <= 0){
+                toast.error("Selecciona al menos una foto");
+                return;
+            }
 
-        let datos = {
-            idCreador: usuario.uid,
-            nombreCreador: usuario.displayName ?? "Anónimo",
-            // @ts-ignore
-            direccion: coordenadas, // Sobreescribir la dirección
-            fotos: fotos.map(foto => foto.file),
-            ...data,
+            let datos = {
+                idCreador: usuario.uid,
+                nombreCreador: usuario.displayName ?? "Anónimo",
+                // @ts-ignore
+                direccion: coordenadas, // Sobreescribir la dirección
+                fotos: fotos.map(foto => foto.file),
+                ...data,
+            }
+            const promesa = crearPublicacionPerdido(datos);
+            await toast.promise(promesa, {
+                loading: "Publicando perro perdido...",
+                success: "Perro perdido publicado",
+                error: "Hubo un error al publicar el perro perdido"
+            })
+        } else {
+            //? Si hay ID, se está editando una publicación
+            // Si no hay imagenes seleccionadas y no hay actuales, se muestra un error
+            if(fotos.length <= 0 && fotosDB.length <= 0){
+                toast.error("Selecciona al menos una foto");
+                return;
+            }
+            let datos = {
+                // Indica cuales fotos se van a borrar y cuales se van a mantener
+                fotosDB: fotosDB,
+                // @ts-ignore
+                direccion: coordenadas, // Sobreescribir la dirección
+                fotos: fotos.map(foto => foto.file), // Fotos nuevas
+                ...data,
+            }
+            const promesa = editarPublicacionPerdido(id, datos);
+            await toast.promise(promesa, {
+                loading: "Editando perro perdido...",
+                success: "Perro perdido editado",
+                error: "Hubo un error al editar el perro perdido"
+            })
         }
-        const promesa = crearPublicacionPerdido(datos);
-        await toast.promise(promesa, {
-            loading: "Publicando perro perdido...",
-            success: "Perro perdido publicado",
-            error: "Hubo un error al publicar el perro perdido"
-        })
 
         navigate("/buscar-perdidos");
     }
@@ -88,6 +116,10 @@ function FormularioPerdido(){
         ])
     }
 
+    const handleBorrarImagenDB = (url: string) => {
+        setFotosDB(prevFotos => [...prevFotos.map(foto => foto.url === url ? {url, borrar: true} : foto)]);
+    }
+
     const handleBorrarImagenLocal = (id: string) => {
         setFotos(prevFotos => [...prevFotos.filter(foto => foto.id !== id)]);
     }
@@ -96,25 +128,69 @@ function FormularioPerdido(){
         setCoordenadas(e.target.value);
     }
 
+    useEffect(() => {
+        if(!id) return;
+
+        setTitulo("Editar perdido | DoggyFinder");
+
+        obtenerPublicacionPerdido(id)
+        .then(datos => {
+            reset({
+                nombre: datos.nombre,
+                descripcion: datos.descripcion,
+                telefono: datos.telefono
+            })
+            setCoordenadas(datos.direccion);
+            setFotosDB(datos.fotos.map(url => ({url, borrar: false})));
+        })
+    }, [id])
+
     return(
         <main className="container mx-auto px-8 my-8">
             <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
                 <h1 className="text-center font-bold text-3xl">¡Publica a tu perro para encontrarlo!</h1>
 
                 {
+                    fotosDB.filter(foto => !foto.borrar).length > 0 && (
+                        <div>
+                            <h2 className="font-bold text-xl">Imágenes actuales</h2>
+                            <div className="m-4 grid grid-cols-[repeat(auto-fill,minmax(min(100%,100px),1fr))] gap-4">
+                                {
+                                    fotosDB.map(({url, borrar}, index) => (
+                                        !borrar && (
+                                            <div className="relative" key={index}>
+                                                <img className="size-full object-cover" src={url} />
+                                                <XIcon
+                                                    className="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 size-8 p-1 rounded-full bg-red-500 hover:bg-red-600 cursor-pointer"
+                                                    onClick={() => handleBorrarImagenDB(url)}
+                                                />
+                                            </div>
+                                        )
+                                    ))
+                                }
+                            </div>
+                        </div>
+                    )
+                }
+
+                {
                     fotos.length > 0 && (
-                        <div className="m-4 grid grid-cols-[repeat(auto-fill,minmax(min(100%,100px),1fr))] gap-4">
-                            {
-                                fotos.map(({id, url}) => (
-                                    <div className="relative" key={id}>
-                                        <img className="size-full object-cover" src={url} />
-                                        <XIcon
-                                            className="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 size-8 p-1 rounded-full bg-red-500 hover:bg-red-600 cursor-pointer"
-                                            onClick={() => handleBorrarImagenLocal(id)}
-                                        />
-                                    </div>
-                                ))
-                            }
+                        <div>
+                            <h2 className="font-bold text-xl">Imágenes actuales</h2>
+
+                            <div className="m-4 grid grid-cols-[repeat(auto-fill,minmax(min(100%,100px),1fr))] gap-4">
+                                {
+                                    fotos.map(({id, url}) => (
+                                        <div className="relative" key={id}>
+                                            <img className="size-full object-cover" src={url} />
+                                            <XIcon
+                                                className="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 size-8 p-1 rounded-full bg-red-500 hover:bg-red-600 cursor-pointer"
+                                                onClick={() => handleBorrarImagenLocal(id)}
+                                            />
+                                        </div>
+                                    ))
+                                }
+                            </div>
                         </div>
                     )
                 }
@@ -208,7 +284,7 @@ function FormularioPerdido(){
                     />
                 </Label>
 
-                <Button type="submit">Publicar</Button>
+                <Button type="submit">{!id ? "Publicar" : "Editar"}</Button>
             </form>
         </main>
     )

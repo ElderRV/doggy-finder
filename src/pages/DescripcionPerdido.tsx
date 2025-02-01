@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 import { borrarPublicacion, obtenerPublicacionPerdido } from "@/firebase";
 import useTitle from "@/hooks/useTitle";
 import toast from "react-hot-toast";
@@ -12,7 +12,7 @@ import { formatDistance } from "date-fns";
 import { es } from "date-fns/locale";
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 
 import MapaUbicacion from "@/components/MapaUbicacion";
 
@@ -99,10 +99,10 @@ function DescripcionPerdido(){
                 </CardHeader>
 
                 <CardContent className="flex gap-2 justify-end">
-                    <Button>
+                    <Link className={buttonVariants({ variant: "default" })} to={`/editar-perdido/${id}`}>
                         <Edit />
                         Editar
-                    </Button>
+                    </Link>
                     <Button variant="destructive" onClick={handleBorrarPublicacion}>
                         <Trash2 />
                         Borrar
