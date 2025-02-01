@@ -8,13 +8,13 @@ import { useAuth } from "@/context/AuthProvider";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { XIcon } from "lucide-react";
 
 import SelectorDeUbicacion from "@/components/SelectorUbicacion";
 import { FotosNuevas, PublicacionPerdidoForm, Coordenadas } from "@/types";
 import { Textarea } from "@/components/ui/textarea";
 import { crearPublicacionPerdido, editarPublicacionPerdido, obtenerPublicacionPerdido } from "@/firebase";
 import toast from "react-hot-toast";
+import ImagenFormulario from "@/components/ImagenFormulario";
 
 function FormularioPerdido(){
     const { usuario } = useAuth()!;
@@ -128,6 +128,7 @@ function FormularioPerdido(){
         setCoordenadas(e.target.value);
     }
 
+    // Si se está editando, se obtienen los datos de la publicación
     useEffect(() => {
         if(!id) return;
 
@@ -158,13 +159,11 @@ function FormularioPerdido(){
                                 {
                                     fotosDB.map(({url, borrar}, index) => (
                                         !borrar && (
-                                            <div className="relative" key={index}>
-                                                <img className="size-full object-cover" src={url} />
-                                                <XIcon
-                                                    className="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 size-8 p-1 rounded-full bg-red-500 hover:bg-red-600 cursor-pointer"
-                                                    onClick={() => handleBorrarImagenDB(url)}
-                                                />
-                                            </div>
+                                            <ImagenFormulario
+                                                key={index}
+                                                src={url}
+                                                handleBorrar={() => handleBorrarImagenDB(url)}
+                                            />
                                         )
                                     ))
                                 }
@@ -181,13 +180,11 @@ function FormularioPerdido(){
                             <div className="m-4 grid grid-cols-[repeat(auto-fill,minmax(min(100%,100px),1fr))] gap-4">
                                 {
                                     fotos.map(({id, url}) => (
-                                        <div className="relative" key={id}>
-                                            <img className="size-full object-cover" src={url} />
-                                            <XIcon
-                                                className="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 size-8 p-1 rounded-full bg-red-500 hover:bg-red-600 cursor-pointer"
-                                                onClick={() => handleBorrarImagenLocal(id)}
-                                            />
-                                        </div>
+                                        <ImagenFormulario
+                                            key={id}
+                                            src={url}
+                                            handleBorrar={() => handleBorrarImagenLocal(id)}
+                                        />
                                     ))
                                 }
                             </div>
@@ -246,7 +243,6 @@ function FormularioPerdido(){
 
                 <Label className="flex flex-col gap-2">
                     <span>Número de teléfono <span className="text-red-500">*</span></span>
-                    {/* // TODO: Cómo era el pattern? */}
                     <Input {...register("telefono", {
                         required: {
                             value: true,
