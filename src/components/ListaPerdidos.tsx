@@ -18,7 +18,7 @@ function ListaPerdidos(){
                     <h3 className="col-span-full text-center my-4">Cargando...</h3>
                 ) : listaPerdidos.length > 0 ? (
                     listaPerdidos.map(data => (
-                        <CardPerro data={data} key={data.id} />
+                        <CardPerro coleccion="perdidos" data={data} key={data.id} />
                     ))
                 ) : (
                     <h3 className="col-span-full text-center my-4">No hay publicaciones</h3>

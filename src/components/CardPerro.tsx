@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { PublicacionPerdidoDB } from "@/types";
+import { PublicacionPerdidoDB, PublicacionEncontradoDB } from "@/types";
 
 import { formatDistance } from "date-fns";
 import { es } from "date-fns/locale";
@@ -21,10 +21,10 @@ import "swiper/css/autoplay";
 // @ts-ignore
 import "swiper/css/keyboard";
 
-function CardPerro({ data: { id, fecha, nombreCreador, nombre, descripcion, telefono, fotos }}: { data: PublicacionPerdidoDB }){
+function CardPerro({ coleccion, data: { id, fecha, nombreCreador, nombre, descripcion, telefono, fotos }}: { coleccion: string, data: PublicacionPerdidoDB | PublicacionEncontradoDB }){
     return(
         <Card key={id}>
-            <Link to={`/buscar-perdidos/${id}`}>
+            <Link to={`/buscar-${coleccion}/${id}`}>
                 <CardHeader>
                     <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,100px),1fr))] gap-4">
                         {

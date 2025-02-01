@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
-import { borrarPublicacionPerdido, obtenerPublicacionPerdido } from "@/firebase";
+import { borrarPublicacionEncontrado, obtenerPublicacionEncontrado } from "@/firebase";
 import useTitle from "@/hooks/useTitle";
 import toast from "react-hot-toast";
 
-import { PublicacionPerdidoDB } from "@/types";
+import { PublicacionEncontradoDB } from "@/types";
 
 import { CalendarDaysIcon, Edit, PhoneIcon, Trash2, User } from "lucide-react";
 
@@ -30,15 +30,15 @@ import "swiper/css/autoplay";
 // @ts-ignore
 import "swiper/css/keyboard";
 
-function DescripcionPerdido(){
+function DescripcionEncontrado(){
     const { id } = useParams();
-    const [publicacion, setPublicacion] = useState<PublicacionPerdidoDB | undefined>(undefined);
+    const [publicacion, setPublicacion] = useState<PublicacionEncontradoDB | undefined>(undefined);
     const navigate = useNavigate();
 
     useEffect(() => {
         if(!id) return;
 
-        obtenerPublicacionPerdido(id)
+        obtenerPublicacionEncontrado(id)
         .then(setPublicacion)
     }, [id])
 
@@ -47,14 +47,14 @@ function DescripcionPerdido(){
     const handleBorrarPublicacion = async () => {
         if(!id) return;
 
-        const promesa = borrarPublicacionPerdido(id);
+        const promesa = borrarPublicacionEncontrado(id);
 
         await toast.promise(promesa, {
             loading: "Borrando publicación...",
             success: "Publicación borrada",
             error: "Error al borrar la publicación"
         })
-        navigate("/buscar-perdidos");
+        navigate("/buscar-encontrados");
     }
 
     if(!publicacion) return (
@@ -99,7 +99,7 @@ function DescripcionPerdido(){
                 </CardHeader>
 
                 <CardContent className="flex gap-2 justify-end">
-                    <Link className={buttonVariants({ variant: "default" })} to={`/editar-perdido/${id}`}>
+                    <Link className={buttonVariants({ variant: "default" })} to={`/editar-encontrado/${id}`}>
                         <Edit />
                         Editar
                     </Link>
@@ -159,4 +159,4 @@ function DescripcionPerdido(){
     )
 }
 
-export default DescripcionPerdido;
+export default DescripcionEncontrado;

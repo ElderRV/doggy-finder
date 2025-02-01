@@ -37,3 +37,6 @@ export interface Coordenadas {
     longitud: number;
     latitud: number;
 }
+
+export type PublicacionEncontradoForm = PublicacionPerdidoForm;
+export type PublicacionEncontradoDB = PublicacionPerdidoDB;

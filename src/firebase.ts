@@ -4,7 +4,7 @@ import { collection, deleteDoc, doc, getDoc, getDocs, getFirestore, orderBy, que
 import { getAuth } from "firebase/auth";
 import { deleteObject, getDownloadURL, getStorage, listAll, ref, uploadBytes } from "firebase/storage";
 
-import { PublicacionPerdidoDB, PublicacionPerdidoForm } from "./types";
+import { PublicacionEncontradoDB, PublicacionEncontradoForm, PublicacionPerdidoDB, PublicacionPerdidoForm } from "./types";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -22,34 +22,58 @@ export const db = getFirestore(app);
 export const auth = getAuth(app);
 export const storage = getStorage(app);
 
-export async function obtenerPublicacionesPerdidos(){
-    let publicaciones: PublicacionPerdidoDB[] = [];
+// Globales
+export async function obtenerPublicaciones<T>(coleccion: string){
+    let publicaciones: T[] = [];
 
     try{
-        const q = query(collection(db, "perdidos"), orderBy("fecha"));
+        const q = query(collection(db, coleccion), orderBy("fecha"));
         const docs = await getDocs(q);
 
-        publicaciones = docs.docs.map(doc => doc.data() as PublicacionPerdidoDB);
+        publicaciones = docs.docs.map(doc => doc.data() as T);
     } catch(error){
-        console.error("Error al obtener las publicaciones de perros perdidos", error);
+        console.error(`Error al obtener las publicaciones de perros ${coleccion}`, error);
     }
 
     return publicaciones;
 }
 
-export async function obtenerPublicacionesEncontrados(){
+export async function obtenerPublicacion<T>(coleccion: string, id: string){
+    const docRef = doc(db, coleccion, id);
+    const documento = await getDoc(docRef);
 
+    return documento.data() as T;
+}
+
+export async function borrarPublicacion(coleccion: string, idPublicacion: string){
+    // Borrar publicación
+    try{
+        await deleteDoc(doc(db, coleccion, idPublicacion));
+    } catch(error){
+        console.error("Error al borrar la publicación", error);
+    }
+
+    // Borrar imágenes
+    try{
+        const listResult = await listAll(ref(storage, `${coleccion}/${idPublicacion}`));
+
+        const promesas = [...listResult.items].map(async item => {
+            await deleteObject(item);
+        })
+
+        await Promise.all(promesas);
+    } catch(error){
+        console.error("Error al borrar las imágenes de la publicación", error);
+    }
+}
+
+// Perdidos
+export async function obtenerPublicacionesPerdidos(){
+    return await obtenerPublicaciones<PublicacionPerdidoDB>("perdidos");
 }
 
 export async function obtenerPublicacionPerdido(id: string){
-    const docRef = doc(db, "perdidos", id);
-    const documento = await getDoc(docRef);
-
-    return documento.data() as PublicacionPerdidoDB;
-}
-
-export async function obtenerPublicacionEncontrado(){
-
+    return await obtenerPublicacion<PublicacionPerdidoDB>("perdidos", id);
 }
 
 export async function crearPublicacionPerdido(datos: PublicacionPerdidoForm & { idCreador: string, nombreCreador: string, fotos: File[] }){
@@ -154,24 +178,121 @@ export async function editarPublicacionPerdido(id: string, datos: PublicacionPer
     }
 }
 
-export async function borrarPublicacion(idPublicacion: string, coleccion: string){
-    // Borrar publicación
-    try{
-        await deleteDoc(doc(db, coleccion, idPublicacion));
-    } catch(error){
-        console.error("Error al borrar la publicación", error);
+export async function borrarPublicacionPerdido(id: string){
+    return await borrarPublicacion("perdidos", id);
+}
+
+// Encontrados
+export async function obtenerPublicacionesEncontrados(){
+    return await obtenerPublicaciones<PublicacionEncontradoDB>("encontrados");
+}
+
+export async function obtenerPublicacionEncontrado(id: string){
+    return await obtenerPublicacion<PublicacionEncontradoDB>("encontrados", id);
+}
+
+export async function crearPublicacionEncontrado(datos: PublicacionEncontradoForm & { idCreador: string, nombreCreador: string, fotos: File[] }){
+    let nuevaPublicacion: PublicacionEncontradoDB = {
+        id: Date.now() + datos.idCreador,
+        fecha: Date.now(),
+        idCreador: datos.idCreador,
+        nombreCreador: datos.nombreCreador,
+
+        nombre: datos.nombre,
+        descripcion: datos.descripcion,
+        telefono: datos.telefono,
+        direccion: datos.direccion,
+        fotos: []
     }
 
-    // Borrar imágenes
-    try{
-        const listResult = await listAll(ref(storage, `${coleccion}/${idPublicacion}`));
+    // Subir las fotos de la publicación
+    if(datos.fotos.length > 0){
+        try{
+            let fotos = [...datos.fotos].map(async fileFoto => {
+                let srcRef = `encontrados/${nuevaPublicacion.id}/${nuevaPublicacion.fecha}-${fileFoto.name}`;
 
-        const promesas = [...listResult.items].map(async item => {
-            await deleteObject(item);
+                // Subir cada foto
+                const storageRef = ref(storage, srcRef);
+                await uploadBytes(storageRef, fileFoto);
+
+                return await getDownloadURL(ref(storage, srcRef));
+            })
+
+            nuevaPublicacion.fotos = await Promise.all(fotos) as string[];
+        } catch(error){
+            // Error al subir la foto
+            console.error(error);
+        }
+    }
+
+    try{
+        // Crear un documento en la colección de encontrados
+        await setDoc(doc(db, "encontrados", nuevaPublicacion.id), nuevaPublicacion);
+    
+        return nuevaPublicacion;
+    } catch(error){
+        // Error al subir el documento de la publicación
+        console.error(error);
+    }
+}
+
+export async function editarPublicacionEncontrado(id: string, datos: PublicacionEncontradoForm & { fotosDB: {url: string, borrar: boolean}[], fotos: File[] }){
+    console.log(datos);
+    let publicacion = await obtenerPublicacionEncontrado(id);
+    if(!publicacion) return;
+
+    // Se sobreescriben los campos
+    publicacion = {
+        ...publicacion,
+        nombre: datos.nombre,
+        descripcion: datos.descripcion,
+        telefono: datos.telefono,
+        direccion: datos.direccion
+    }
+
+    // Borrar fotos que ya están en la base de datos y fueron marcadas para borrar
+    try{
+        const fotosBorrar = datos.fotosDB.filter(foto => foto.borrar);
+        fotosBorrar.forEach(foto => {
+            deleteObject(ref(storage, foto.url));
         })
-
-        await Promise.all(promesas);
     } catch(error){
-        console.error("Error al borrar las imágenes de la publicación", error);
+        console.error(error);
     }
+
+    // Subir las fotos nuevas
+    if(datos.fotos.length > 0){
+        try{
+            let fotos = [...datos.fotos].map(async fileFoto => {
+                let srcRef = `encontrados/${id}/${publicacion.fecha}-${fileFoto.name}`;
+
+                // Subir cada foto
+                const storageRef = ref(storage, srcRef);
+                await uploadBytes(storageRef, fileFoto);
+
+                return await getDownloadURL(ref(storage, srcRef));
+            })
+
+            const fotosAnteriores = datos.fotosDB.filter(foto => !foto.borrar).map(foto => foto.url);
+            const nuevasFotos = await Promise.all(fotos) as string[];
+            publicacion.fotos = [...fotosAnteriores, ...nuevasFotos];
+        } catch(error){
+            // Error al subir la foto
+            console.error(error);
+        }
+    }
+
+    try{
+        // Editar el documento
+        await updateDoc(doc(db, "encontrados", id), publicacion);
+    
+        return publicacion;
+    } catch(error){
+        // Error al subir el documento de la publicación
+        console.error(error);
+    }
+}
+
+export async function borrarPublicacionEncontrado(id: string){
+    return await borrarPublicacion("encontrados", id);
 }
