@@ -55,7 +55,6 @@ function CardPerro({ coleccion, data: { id, fecha, nombreCreador, nombre, descri
                     </div>
                     <CardDescription className="flex flex-wrap gap-2 justify-between">
                         <span className="flex-1 min-w-fit">{nombreCreador}</span>
-                        {/* // TODO: Usar date-fns como en los comentarios para mostrar el tiempo que lleva la publicación */}
                         <span className="flex-1 min-w-fit [&::first-letter]:capitalize text-right">
                             {
                                 formatDistance(

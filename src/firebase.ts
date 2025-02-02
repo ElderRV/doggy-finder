@@ -1,10 +1,10 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { collection, deleteDoc, doc, getDoc, getDocs, getFirestore, orderBy, query, setDoc, updateDoc } from "firebase/firestore";
+import { collection, deleteDoc, doc, getDoc, getDocs, getFirestore, orderBy, query, setDoc, updateDoc, where } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { deleteObject, getDownloadURL, getStorage, listAll, ref, uploadBytes } from "firebase/storage";
 
-import { PublicacionEncontradoDB, PublicacionEncontradoForm, PublicacionPerdidoDB, PublicacionPerdidoForm } from "./types";
+import { Comentario, PublicacionEncontradoDB, PublicacionEncontradoForm, PublicacionPerdidoDB, PublicacionPerdidoForm } from "./types";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -295,4 +295,48 @@ export async function editarPublicacionEncontrado(id: string, datos: Publicacion
 
 export async function borrarPublicacionEncontrado(id: string){
     return await borrarPublicacion("encontrados", id);
+}
+
+// Comentarios
+export async function obtenerComentarios(idPublicacion: string){
+    let comentarios: Comentario[] = [];
+
+    try{
+        const q = query(collection(db, "comentarios"), where("idPublicacion", "==", idPublicacion), orderBy("fecha"));
+        const querySnapshot = await getDocs(q);
+
+        comentarios = querySnapshot.docs.map(doc => doc.data() as Comentario);
+    } catch(error){
+        console.error("Error al obtener los comentarios", error);
+    }
+
+    return comentarios;
+}
+
+export async function enviarComentario({ idPublicacion, idUsuario, nombreUsuario, comentario }: { idPublicacion: string, idUsuario: string, nombreUsuario: string, comentario: string }){
+    const id = `${idPublicacion}-${idUsuario}-${Date.now()}`;
+    const nuevoComentario: Comentario = {
+        id,
+        idPublicacion,
+        idUsuario,
+        nombreUsuario,
+        comentario,
+        fecha: Date.now(),
+    }
+
+    try{
+        await setDoc(doc(db, "comentarios", id), nuevoComentario);
+        
+        return nuevoComentario;
+    } catch(error){
+        console.error("Error al enviar el comentario", error);
+    }
+}
+
+export async function borrarComentario(idComentario: string){
+    try{
+        await deleteDoc(doc(db, "comentarios", idComentario));
+    } catch(error){
+        console.error("Error al borrar el comentario", error);
+    }
 }

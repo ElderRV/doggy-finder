@@ -14,6 +14,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import SliderDescripcion from "./SliderDescripcion";
 import MapaUbicacion from "@/components/MapaUbicacion";
 import AdministracionPublicacion from "./AdministracionPublicacion";
+import Comentarios from "./Comentarios";
 
 interface DescripcionPublicacionProps {
     tipo: string;
@@ -96,7 +97,7 @@ function DescripcionPublicacion({ tipo, obtenerPublicacion, borrarPublicacion }:
                 <MapaUbicacion className="border shadow rounded-md" ubicacion={publicacion.direccion} />
             </div>
 
-            {/* // TODO: Comentarios */}
+            <Comentarios />
         </main>
     )
 }

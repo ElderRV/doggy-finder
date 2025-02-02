@@ -40,3 +40,13 @@ export interface Coordenadas {
 
 export type PublicacionEncontradoForm = PublicacionPerdidoForm;
 export type PublicacionEncontradoDB = PublicacionPerdidoDB;
+
+// Comentarios
+export interface Comentario {
+    id: string;
+    idPublicacion: string;
+    idUsuario: string;
+    nombreUsuario: string;
+    comentario: string;
+    fecha: number;
+}

@@ -25,8 +25,8 @@ export default function Navbar() {
 
     return (
         <NavigationMenu className="mx-auto">
-            <NavigationMenuList className="w-screen max-w-screen-lg px-8 py-2">
-                <div className="flex mr-auto">
+            <NavigationMenuList className="px-8 py-2">
+                <div className="flex">
                     <NavigationMenuItem>
                         <Link to="/">
                             <NavigationMenuLink className={navigationMenuTriggerStyle()}>
@@ -71,7 +71,7 @@ export default function Navbar() {
                     usuario ? (
                         usuario?.photoURL && (
                             <DropdownMenu>
-                                <DropdownMenuTrigger className="outline-none">
+                                <DropdownMenuTrigger className="flex-shrink-0 outline-none">
                                     <img className="size-8 rounded-full" src={usuario.photoURL} alt={`Imagen de perfil de ${usuario?.displayName}`} />
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent>
