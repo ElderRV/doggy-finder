@@ -59,7 +59,7 @@ function Comentarios(){
 
         // Agregar el comentario para mostrarlo en ese momento
         if(!comentario) return;
-        setComentarios(comentarios => comentarios ? [...comentarios, comentario] : [comentario]);
+        setComentarios(comentarios => comentarios ? [comentario, ...comentarios] : [comentario]);
     }
 
     const handleBorrarComentario = async (idComentario: string) => {
@@ -76,7 +76,10 @@ function Comentarios(){
         if(!id) return;
 
         obtenerComentarios(id)
-        .then(setComentarios);
+        .then(comentarios => {
+            const comentariosOrdenados = comentarios.sort((a, b) => b.fecha - a.fecha);
+            setComentarios(comentariosOrdenados);
+        });
     }, [id])
 
     return(
