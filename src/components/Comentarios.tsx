@@ -36,10 +36,11 @@ function Comentarios(){
     // TODO: Obtener permisos por rol para permitir o proteger las acciones, usar un custom hook
 
     const handleEnviarComentario = async (data: ComentarioForm) => {
+        if(!data.comentario) return toast.error("El comentario no puede estar vacío");
         // Si no existe el id de la publicación o el usuario, no se puede enviar el comentario
         if(!id || !usuario) return toast.error("Inicia sesión para poder comentar");
 
-        // TODO:  Si no tiene permisos para realizar esa acción
+        // TODO: Si no tiene permisos para realizar esa acción
         
         // Se limpia el formulario
         reset();
@@ -87,12 +88,7 @@ function Comentarios(){
                     <span>Deja tu comentario:</span>
                     <Textarea
                         className="[field-sizing:content;]"
-                        {...register("comentario", {
-                            required: {
-                                value: true,
-                                message: "El comentario es requerido"
-                            }
-                        })}
+                        {...register("comentario")}
                         cols={30}
                         rows={2}
                     />
