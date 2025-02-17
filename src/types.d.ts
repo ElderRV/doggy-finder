@@ -6,6 +6,7 @@ export interface AuthProviderValue {
     registrarUsuario: ({name: string, email: string, password: string}) => Promise<void>;
     iniciarSesion: ({email: string, password: string}) => Promise<void>;
     cerrarSesion: () => Promise<void>;
+    enviarCorreoRecuperacion: (email: string) => Promise<void>;
 };
 
 export type AuthUser = User | undefined | null;

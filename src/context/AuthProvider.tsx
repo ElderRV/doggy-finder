@@ -1,5 +1,5 @@
 import { useState, useEffect, createContext, useContext } from "react";
-import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, sendPasswordResetEmail } from "firebase/auth";
 import { useNavigate } from "react-router";
 
 import { AuthProviderValue, AuthUser } from "@/types";
@@ -77,13 +77,18 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     }
 
+    const enviarCorreoRecuperacion = async (email: string) => {
+        await sendPasswordResetEmail(auth, email);
+    }
+
     return (
         <authContext.Provider value={{
             usuario,
             iniciarSesionGoogle,
             registrarUsuario,
             iniciarSesion,
-            cerrarSesion
+            cerrarSesion,
+            enviarCorreoRecuperacion
         }}>{children}</authContext.Provider>
     );
 }

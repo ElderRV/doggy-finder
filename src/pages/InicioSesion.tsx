@@ -18,8 +18,8 @@ interface InicioSesionFormValues {
 }
 
 export default function InicioSesion() {
-    const { iniciarSesion, iniciarSesionGoogle } = useAuth()!;
-    const { register, handleSubmit, formState, reset } = useForm<InicioSesionFormValues>({
+    const { iniciarSesion, iniciarSesionGoogle, enviarCorreoRecuperacion } = useAuth()!;
+    const { register, handleSubmit, formState, reset, getValues } = useForm<InicioSesionFormValues>({
         defaultValues: {
             email: '',
             password: '',
@@ -54,10 +54,18 @@ export default function InicioSesion() {
         navigate("/");
     }
 
-    const handleForgotPassword = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
-        e.preventDefault()
-        //TODO: Implementar recuperación de contraseña
-        console.log("Recuperación de contraseña iniciada");
+    const handleForgotPassword = async (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+        e.preventDefault();
+
+        const correo = getValues("email");
+        if(!correo) return toast.error("Introduce un correo electrónico para recuperar tu contraseña");
+
+        const promesa = enviarCorreoRecuperacion(correo);
+        await toast.promise(promesa, {
+            loading: "Enviando correo de recuperación...",
+            success: "Se ha enviado un correo para recuperar tu contraseña",
+            error: "Ocurrió un error al enviar el correo para recuperar tu contraseña"
+        })
     }
 
     return (
