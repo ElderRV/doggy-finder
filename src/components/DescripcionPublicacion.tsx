@@ -15,6 +15,7 @@ import SliderDescripcion from "./SliderDescripcion";
 import MapaUbicacion from "@/components/MapaUbicacion";
 import AdministracionPublicacion from "./AdministracionPublicacion";
 import Comentarios from "./Comentarios";
+import { cn } from "@/lib/utils";
 
 interface DescripcionPublicacionProps {
     tipo: string;
@@ -82,7 +83,10 @@ function DescripcionPublicacion({ tipo, obtenerPublicacion, borrarPublicacion }:
             </div>
 
             <Card className="mx-auto my-8 max-w-prose">
-                <CardHeader>
+                <CardHeader className="relative">
+                    <span className={cn("absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 text-sm px-4 py-1 rounded-md", tipo === "perdido" ? "bg-red-800" : "bg-green-800")}>
+                        { tipo === "perdido" ? "Perdido" : "Encontrado" }
+                    </span>
                     <h2 className="text-center font-bold text-2xl">{publicacion.nombre}</h2>
                 </CardHeader>
 
