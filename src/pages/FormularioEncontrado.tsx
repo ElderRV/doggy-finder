@@ -50,7 +50,7 @@ function FormularioEncontrado(){
             let datos = {
                 idCreador: usuario.uid,
                 nombreCreador: usuario.displayName ?? "Anónimo",
-                // @ts-ignore
+                // @ts-expect-error No importa que se sobreescriba la dirección
                 direccion: coordenadas, // Sobreescribir la dirección
                 fotos: fotos.map(foto => foto.file),
                 ...data,
@@ -71,7 +71,7 @@ function FormularioEncontrado(){
             let datos = {
                 // Indica cuales fotos se van a borrar y cuales se van a mantener
                 fotosDB: fotosDB,
-                // @ts-ignore
+                // @ts-expect-error No importa que se sobreescriba la dirección
                 direccion: coordenadas, // Sobreescribir la dirección
                 fotos: fotos.map(foto => foto.file), // Fotos nuevas
                 ...data,
