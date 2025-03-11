@@ -313,6 +313,13 @@ export async function obtenerComentarios(idPublicacion: string){
     return comentarios;
 }
 
+export async function obtenerComentario(id: string){
+    const docRef = doc(db, "comentarios", id);
+    const documento = await getDoc(docRef);
+
+    return documento.data() as Comentario;
+}
+
 export async function enviarComentario({ idPublicacion, idUsuario, nombreUsuario, comentario }: { idPublicacion: string, idUsuario: string, nombreUsuario: string, comentario: string }){
     const id = `${idPublicacion}-${idUsuario}-${Date.now()}`;
     const nuevoComentario: Comentario = {

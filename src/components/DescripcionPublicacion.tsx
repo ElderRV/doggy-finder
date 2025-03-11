@@ -11,6 +11,7 @@ import { es } from "date-fns/locale";
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
+import Protegido from "./Protegido";
 import SliderDescripcion from "./SliderDescripcion";
 import MapaUbicacion from "@/components/MapaUbicacion";
 import AdministracionPublicacion from "./AdministracionPublicacion";
@@ -52,7 +53,14 @@ function DescripcionPublicacion({ tipo, obtenerPublicacion, borrarPublicacion }:
                 )
             }
 
-            <AdministracionPublicacion tipo={tipo} borrarPublicacion={borrarPublicacion} />
+            <Protegido
+                names={["general/administrar-publicacion", "personal:publicacion/administrar-publicacion"]}
+                type="component"
+                params={{ coleccion: tipo === "perdido" ? "perdidos" : "encontrados" }}
+                errorComponent={<></>}
+            >
+                <AdministracionPublicacion tipo={tipo} borrarPublicacion={borrarPublicacion} />
+            </Protegido>
 
             <div className="flex flex-col flex-wrap gap-4">
                 <div className="flex flex-wrap gap-4 justify-between">

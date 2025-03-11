@@ -16,6 +16,8 @@ import { Textarea } from "./ui/textarea";
 import { Card, CardContent, CardHeader } from "./ui/card";
 
 import { Comentario } from "@/types";
+import usePermisos from "@/hooks/usePermisos";
+import Protegido from "./Protegido";
 
 interface ComentarioForm {
     comentario: string;
@@ -30,24 +32,22 @@ function Comentarios(){
     });
 
     const { usuario } = useAuth()!;
+    const { permiso: permisoComentar, error: errorComentar } = usePermisos(["general/comentar-publicacion"]);
 
     const [comentarios, setComentarios] = useState<Comentario[] | null>(null);
 
-    // TODO: Obtener permisos por rol para permitir o proteger las acciones, usar un custom hook
-
     const handleEnviarComentario = async (data: ComentarioForm) => {
         if(!data.comentario) return toast.error("El comentario no puede estar vacío");
-        // Si no existe el id de la publicación o el usuario, no se puede enviar el comentario
-        if(!id || !usuario) return toast.error("Inicia sesión para poder comentar");
-
-        // TODO: Si no tiene permisos para realizar esa acción
+        
+        // Si no tiene permisos para realizar comentar, se muestra el error
+        if(!permisoComentar) return toast.error(errorComentar);
         
         // Se limpia el formulario
         reset();
 
         const promesa = enviarComentario({
-            idPublicacion: id,
-            idUsuario: usuario.uid,
+            idPublicacion: id!,
+            idUsuario: usuario!.uid,
             nombreUsuario: usuario?.displayName ?? "Anónimo",
             comentario: data.comentario
         })
@@ -127,10 +127,16 @@ function Comentarios(){
                                                 }
                                             ) }</small>
 
-                                            {/* // TODO: Manejar los permisos protegiendo el boton de borar */}
-                                            <Button variant="destructive" onClick={() => handleBorrarComentario(id)}>
-                                                <Trash2 />
-                                            </Button>
+                                            <Protegido
+                                                names={["general/borrar-comentario", "personal:comentario/borrar-comentario"]}
+                                                type="component"
+                                                params={{ idComentario: id }}
+                                                errorComponent={<></>}
+                                            >
+                                                <Button variant="destructive" onClick={() => handleBorrarComentario(id)}>
+                                                    <Trash2 />
+                                                </Button>
+                                            </Protegido>
                                         </div>
                                     </CardHeader>
                                     <CardContent>

@@ -2,8 +2,10 @@ import { useState, useEffect, createContext, useContext } from "react";
 import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, sendPasswordResetEmail } from "firebase/auth";
 import { useNavigate } from "react-router";
 
-import { AuthProviderValue, AuthUser } from "@/types";
-import { auth } from "@/firebase";
+import { AuthProviderValue, AuthUser, AuthUserDB, Roles } from "@/types";
+import { auth, db } from "@/firebase";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { PERMISOS } from "@/lib/utils";
 
 const provider = new GoogleAuthProvider();
 
@@ -13,15 +15,33 @@ export function useAuth() {
     return useContext(authContext);
 }
 
+type Permisos = {
+    [K in Roles]: {
+        [key: string]: boolean;
+    };
+} | undefined;
+
 function AuthProvider({ children }: { children: React.ReactNode }) {
     const [usuario, setUsuario] = useState<AuthUser>(undefined);
+    const [permisos, setPermisos] = useState<Permisos>(undefined);
     const navigate = useNavigate();
 
     // Actualizar el estado de la sesión en tiempo real
     useEffect(() => {
-        onAuthStateChanged(auth, usuario => {
+        //TODO: Obtener los permisos del usuario desde la base de datos
+        setPermisos(PERMISOS);
+
+        onAuthStateChanged(auth, async usuario => {
             if (usuario) {
-                setUsuario(usuario);
+                // Obtener los datos extras del usuario de la base de datos
+                const documento = doc(db, "usuarios", usuario?.uid);
+                const snapshot = await getDoc(documento);
+                const datos = snapshot.data() as AuthUserDB;
+
+                setUsuario({
+                    ...datos,
+                    ...usuario,
+                });
             } else {
                 setUsuario(null);
             }
@@ -55,12 +75,21 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const registrarUsuario = async ({ name, email, password }: { name: string, email: string, password: string }): Promise<any> => {
         // Se registra al usuario y se regresan los datos de la cuenta
-        await createUserWithEmailAndPassword(auth, email, password);
+        const usuario = await createUserWithEmailAndPassword(auth, email, password);
 
         // Se actualiza el perfil del usuario con el nombre
         await updateProfile(auth.currentUser!, {
             displayName: name,
             photoURL: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}`
+        });
+
+        // Se crea un usuario en la base de datos
+        const documento = doc(db, "usuarios", usuario?.user?.uid);
+        await setDoc(documento, {
+            id: usuario?.user?.uid,
+            nombre: name,
+            email: email,
+            rol: "usuario"
         });
     }
 
@@ -84,6 +113,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
     return (
         <authContext.Provider value={{
             usuario,
+            permisos,
             iniciarSesionGoogle,
             registrarUsuario,
             iniciarSesion,

@@ -2,6 +2,7 @@ import { User } from "firebase/auth";
 
 export interface AuthProviderValue {
     usuario: AuthUser;
+    permisos: Permisos;
     iniciarSesionGoogle: () => Promise<{token: string | undefined, usuario: User} | undefined>;
     registrarUsuario: ({name: string, email: string, password: string}) => Promise<void>;
     iniciarSesion: ({email: string, password: string}) => Promise<void>;
@@ -9,7 +10,17 @@ export interface AuthProviderValue {
     enviarCorreoRecuperacion: (email: string) => Promise<void>;
 };
 
-export type AuthUser = User | undefined | null;
+export type RolesDB = "admin" | "usuario";
+export type Roles = RolesDB | "anonimo";
+
+export type AuthUserProvider = User | undefined | null;
+export interface AuthUserDB {
+    id: string;
+    nombre: string;
+    email: string | null;
+    rol: Roles;
+}
+export type AuthUser = (AuthUserProvider & AuthUserDB) | undefined | null;
 
 export interface PublicacionPerdidoForm {
     nombre: string;
