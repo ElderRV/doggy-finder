@@ -32,8 +32,8 @@ function Protegido({
     redirect="/", // se usa en route
     paramURL="id", // se usa en route y component
     params={}, // se usa en route y component
-    cargandoComponent=<span>Cargando...</span>,
-    errorComponent=<span>No tienes los permisos suficientes</span>,
+    cargandoComponent=<span className="block text-center text-xl">Cargando...</span>,
+    errorComponent=<span className="block text-center text-xl">No tienes los permisos suficientes</span>,
     children
 }: Partial<ProtegidoProps>){
     const paramsURL = useParams();
@@ -116,11 +116,13 @@ function Protegido({
     }
 
     useEffect(() => {
-        // Cuando ya se hayan obtenido los permisos
-        if(permisos) procesarPermisos();
+        if(usuario === undefined || !permisos) return;
+        
+        // Cuando ya se hayan obtenido los permisos y el usuario
+        procesarPermisos();
     }, [usuario, permisos])
 
-    // Manejar la renderización, cuando type="route" no renderiza nada porque tiene que redirigir
+    // Manejar la renderización, cuando hay error y se tiene type="route" no renderiza nada porque tiene que redirigir
     if(cargando){
         return cargandoComponent;
     } else if(!autorizado && type == "component"){
