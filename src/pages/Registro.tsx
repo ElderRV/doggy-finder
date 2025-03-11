@@ -21,7 +21,7 @@ interface RegistroFormValues {
 
 export default function Registro() {
     const { registrarUsuario, iniciarSesionGoogle } = useAuth()!;
-    const { register, handleSubmit, formState, reset } = useForm<RegistroFormValues>({
+    const { register, handleSubmit, formState } = useForm<RegistroFormValues>({
         defaultValues: {
             name: '',
             email: '',
@@ -48,8 +48,7 @@ export default function Registro() {
             error: 'Ocurrió un error al registrar el usuario'
         })
 
-        setIsLoading(false);
-        reset();
+        navigate("/");
     }
 
     const handleGoogleOauth = async () => {
