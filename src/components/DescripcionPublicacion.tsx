@@ -57,6 +57,7 @@ function DescripcionPublicacion({ tipo, obtenerPublicacion, borrarPublicacion }:
                 names={["general/administrar-publicacion", "personal:publicacion/administrar-publicacion"]}
                 type="component"
                 params={{ coleccion: tipo === "perdido" ? "perdidos" : "encontrados" }}
+                cargandoComponent={<></>}
                 errorComponent={<></>}
             >
                 <AdministracionPublicacion tipo={tipo} borrarPublicacion={borrarPublicacion} />

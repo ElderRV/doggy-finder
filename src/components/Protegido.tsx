@@ -62,8 +62,9 @@ function Protegido({
                 return permisos[rol]?.[name];
             } else if(name.startsWith("personal:publicacion/")) {
                 // Si se tiene que proteger una publicación para que solo acceda el creador
-                if(!parametroURL){
-                    console.error("No se ha pasado el parametro de la publicación en el prop paramURL");
+                // La id de la publicación se puede obtener por la url o por params
+                if(!parametroURL && !params.id){
+                    console.error('No se ha pasado el parametro "id" en el prop params o la key "id" en el prop paramURL');
                     return false;
                 };
                 if(!params.coleccion){
@@ -72,13 +73,14 @@ function Protegido({
                 }
                 
                 let publicacion;
-                if(params.coleccion == "perdidos") publicacion = await obtenerPublicacionPerdido(parametroURL);
-                else publicacion = await obtenerPublicacionEncontrado(parametroURL);
+                if(params.coleccion == "perdidos") publicacion = await obtenerPublicacionPerdido(parametroURL ?? params.id);
+                else publicacion = await obtenerPublicacionEncontrado(parametroURL ?? params.id);
 
                 return permisos[rol]?.[name] && publicacion.idCreador == usuario?.id;
             } else if(name.startsWith("personal:comentario/")) {
                 // Si solo el dueño del usuario puede hacer un cambio con su propio comentario
                 // Se necesita un params con { idComentario: ... }
+                // No se puede con la url porque el idComentario no tiene su propia ruta
                 if(!params.idComentario){
                     console.error('No se ha pasado el parametro "idComentario" en el prop params');
                     return false;
