@@ -19,7 +19,7 @@ interface InicioSesionFormValues {
 
 export default function InicioSesion() {
     const { iniciarSesion, iniciarSesionGoogle, enviarCorreoRecuperacion } = useAuth()!;
-    const { register, handleSubmit, formState, reset, getValues } = useForm<InicioSesionFormValues>({
+    const { register, handleSubmit, formState, getValues } = useForm<InicioSesionFormValues>({
         defaultValues: {
             email: '',
             password: '',
@@ -41,11 +41,12 @@ export default function InicioSesion() {
         await toast.promise(promesa, {
             loading: 'Iniciando sesión...',
             success: 'Sesión iniciada',
-            error: 'Ocurrió un error al iniciar sesión'
+            error: () => {
+                setIsLoading(false);
+                return 'Ocurrió un error al iniciar sesión';
+            }
         })
 
-        setIsLoading(false);
-        reset();
         navigate("/");
     }
 
