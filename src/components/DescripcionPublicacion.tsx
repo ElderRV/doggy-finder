@@ -26,20 +26,30 @@ interface DescripcionPublicacionProps {
 
 function DescripcionPublicacion({ tipo, obtenerPublicacion, borrarPublicacion }: DescripcionPublicacionProps){
     const { id } = useParams();
-    const [publicacion, setPublicacion] = useState<PublicacionPerdidoDB | PublicacionEncontradoDB | undefined>(undefined);
+    const [publicacion, setPublicacion] = useState<PublicacionPerdidoDB | PublicacionEncontradoDB | undefined | null>(undefined);
 
     useEffect(() => {
         if(!id) return;
 
         obtenerPublicacion(id)
-        .then(setPublicacion)
+        .then(data => {
+            if(!data) return setPublicacion(null);
+
+            setPublicacion(data);
+        })
     }, [id])
 
     useTitle(`${publicacion?.nombre ?? "Cargando descripción..."} | DoggyFinder`);
 
-    if(!publicacion) return (
+    if(publicacion === undefined) return (
         <main className="container max-w-screen-lg mx-auto px-8 my-8">
             <h1 className="text-center font-bold text-3xl my-8">Cargando...</h1>
+        </main>
+    )
+
+    if(publicacion === null) return (
+        <main className="container max-w-screen-lg mx-auto px-8 my-8">
+            <h1 className="text-center font-bold text-3xl my-8">Esta publicación no existe</h1>
         </main>
     )
 
