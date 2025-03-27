@@ -27,7 +27,7 @@ export async function obtenerPublicaciones<T>(coleccion: string){
     let publicaciones: T[] = [];
 
     try{
-        const q = query(collection(db, coleccion), orderBy("fecha"));
+        const q = query(collection(db, coleccion), orderBy("fecha", "desc"));
         const docs = await getDocs(q);
 
         publicaciones = docs.docs.map(doc => doc.data() as T);
