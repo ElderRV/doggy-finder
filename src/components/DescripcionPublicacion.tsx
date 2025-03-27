@@ -16,10 +16,11 @@ import SliderDescripcion from "./SliderDescripcion";
 import MapaUbicacion from "@/components/MapaUbicacion";
 import AdministracionPublicacion from "./AdministracionPublicacion";
 import Comentarios from "./Comentarios";
+import SliderSimilares from "./SliderSimilares";
 import { cn } from "@/lib/utils";
 
-interface DescripcionPublicacionProps {
-    tipo: string;
+export interface DescripcionPublicacionProps {
+    tipo: "encontrado" | "perdido";
     obtenerPublicacion: (id: string) => Promise<PublicacionPerdidoDB | PublicacionEncontradoDB>;
     borrarPublicacion: (id: string) => Promise<void>;
 }
@@ -119,6 +120,8 @@ function DescripcionPublicacion({ tipo, obtenerPublicacion, borrarPublicacion }:
                 
                 <MapaUbicacion className="border shadow rounded-md" ubicacion={publicacion.direccion} />
             </div>
+
+            <SliderSimilares tipo={tipo} raza="raza_del_perro" />
 
             <Comentarios />
         </main>
