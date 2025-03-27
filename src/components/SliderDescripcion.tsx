@@ -31,7 +31,7 @@ function SliderDescripcion({ publicacion }: SliderDescripcionProps){
                 enabled: true
             }}
             autoplay={{ delay: 5000, pauseOnMouseEnter: true, disableOnInteraction: true }}
-            loop
+            loop={publicacion.fotos.length > 1}
         >
             {
                 publicacion.fotos.map((foto, index) => (

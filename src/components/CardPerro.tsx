@@ -91,7 +91,7 @@ function CardPerro({ coleccion, data: { id, fecha, nombreCreador, nombre, descri
                                         enabled: true
                                     }}
                                     autoplay={{ delay: 5000, pauseOnMouseEnter: true, disableOnInteraction: true }}
-                                    loop
+                                    loop={fotos.length > 1}
                                 >
                                     {
                                         fotos.map((foto, index) => (
