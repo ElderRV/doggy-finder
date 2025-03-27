@@ -35,6 +35,7 @@ export type PublicacionPerdidoDB = Omit<PublicacionPerdidoForm, "fotos"> & {
     idCreador: string;
     nombreCreador: string;
     fotos: string[];
+    raza: string;
 }
 
 export interface FotoNueva {

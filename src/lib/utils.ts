@@ -51,3 +51,29 @@ export function obtenerRol(usuario: AuthUser): Roles{
 
     return rol;
 }
+
+export async function obtenerRaza(fotosUrls: string[]): Promise<string> {
+    let data;
+    
+    try{
+        // TODO: ¿Utilizar una o todas las fotos?
+        // TODO: Se podría iterar sobre todas las fotos para obtener la raza más común pero también habría más carga para el servidor
+        const res = await fetch(`${import.meta.env.VITE_API_URL}${import.meta.env.VITE_API_BREED_ENDPOINT}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                url: fotosUrls[0]
+            })
+        });
+        data = await res.json();
+    } catch(err){
+        console.error(err);
+        return "Desconocida";
+    }
+    
+    if(data.error) return "Desconocida";
+    
+    return data.breed;
+}

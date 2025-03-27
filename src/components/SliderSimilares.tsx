@@ -23,9 +23,9 @@ function SliderSimilares({ tipo, raza="sin_raza" }: SliderSimilaresProps){
 
         // TODO: Procedimiento para buscar las publicaciones similares
         // const similares = await buscarSimilares(tipo, raza);
-        const similares: PublicacionEncontradoDB[] | PublicacionPerdidoDB[] = [{ id: "1", nombre: "Perro 1", fecha: Date.now()-Math.random()*50000000, descripcion: "Descripción 1", fotos: ["https://picsum.photos/500"], direccion: {latitud:0,longitud:0}, telefono: "1231231231", idCreador: "asdasd", nombreCreador: "Nombre creador" },{ id: "2", nombre: "Perro 2", fecha: Date.now()-Math.random()*50000000, descripcion: "Descripción 2", fotos: ["https://picsum.photos/501"], direccion: {latitud:0,longitud:0}, telefono: "0987654321", idCreador: "dos", nombreCreador: "Creador de la publicación" },{ id: "3", nombre: "Perro 2", fecha: Date.now()-Math.random()*50000000, descripcion: "Descripción 2", fotos: ["https://picsum.photos/502"], direccion: {latitud:0,longitud:0}, telefono: "0987654321", idCreador: "dos", nombreCreador: "Creador de la publicación" },
-        { id: "4", nombre: "Perro 4", fecha: Date.now()-Math.random()*50000000, descripcion: "Descripción 2", fotos: ["https://picsum.photos/503"], direccion: {latitud:0,longitud:0}, telefono: "0987654321", idCreador: "dos", nombreCreador: "Creador de la publicación" },
-        { id: "5", nombre: "Perro 5", fecha: Date.now()-Math.random()*50000000, descripcion: "Descripción 2", fotos: ["https://picsum.photos/504"], direccion: {latitud:0,longitud:0}, telefono: "0987654321", idCreador: "dos", nombreCreador: "Creador de la publicación" }];
+        const similares: PublicacionEncontradoDB[] | PublicacionPerdidoDB[] = [{ id: "1", nombre: "Perro 1", fecha: Date.now()-Math.random()*50000000, descripcion: "Descripción 1", fotos: ["https://picsum.photos/500"], direccion: {latitud:0,longitud:0}, telefono: "1231231231", idCreador: "asdasd", nombreCreador: "Nombre creador", raza: "la_raza" },{ id: "2", nombre: "Perro 2", fecha: Date.now()-Math.random()*50000000, descripcion: "Descripción 2", fotos: ["https://picsum.photos/501"], direccion: {latitud:0,longitud:0}, telefono: "0987654321", idCreador: "dos", nombreCreador: "Creador de la publicación", raza: "la_raza" },{ id: "3", nombre: "Perro 2", fecha: Date.now()-Math.random()*50000000, descripcion: "Descripción 2", fotos: ["https://picsum.photos/502"], direccion: {latitud:0,longitud:0}, telefono: "0987654321", idCreador: "dos", nombreCreador: "Creador de la publicación", raza: "la_raza" },
+        { id: "4", nombre: "Perro 4", fecha: Date.now()-Math.random()*50000000, descripcion: "Descripción 2", fotos: ["https://picsum.photos/503"], direccion: {latitud:0,longitud:0}, telefono: "0987654321", idCreador: "dos", nombreCreador: "Creador de la publicación", raza: "la_raza" },
+        { id: "5", nombre: "Perro 5", fecha: Date.now()-Math.random()*50000000, descripcion: "Descripción 2", fotos: ["https://picsum.photos/504"], direccion: {latitud:0,longitud:0}, telefono: "0987654321", idCreador: "dos", nombreCreador: "Creador de la publicación", raza: "la_raza" }];
         
         setPublicacionesSimilares(similares);
     }, [tipo, raza])
@@ -72,7 +72,7 @@ function SliderSimilares({ tipo, raza="sin_raza" }: SliderSimilaresProps){
                                 enabled: true
                             }}
                             autoplay={{ delay: 5000, pauseOnMouseEnter: true, disableOnInteraction: true }}
-                            loop
+                            loop={publicacionesSimilares.length > 1}
                         >
                             {
                                 publicacionesSimilares.map(data => (

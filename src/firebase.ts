@@ -6,6 +6,8 @@ import { deleteObject, getDownloadURL, getStorage, listAll, ref, uploadBytes } f
 
 import { Comentario, PublicacionEncontradoDB, PublicacionEncontradoForm, PublicacionPerdidoDB, PublicacionPerdidoForm } from "./types";
 
+import { obtenerRaza } from "./lib/utils";
+
 // Your web app's Firebase configuration
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_API_KEY,
@@ -87,28 +89,35 @@ export async function crearPublicacionPerdido(datos: PublicacionPerdidoForm & { 
         descripcion: datos.descripcion,
         telefono: datos.telefono,
         direccion: datos.direccion,
-        fotos: []
+        fotos: [],
+        raza: ""
     }
-
+    
     // Subir las fotos de la publicación
-    if(datos.fotos.length > 0){
-        try{
-            let fotos = [...datos.fotos].map(async fileFoto => {
-                let srcRef = `perdidos/${nuevaPublicacion.id}/${nuevaPublicacion.fecha}-${fileFoto.name}`;
+    try{
+        if(datos.fotos.length <= 0) throw new Error("No se ha subido ninguna foto");
 
-                // Subir cada foto
-                const storageRef = ref(storage, srcRef);
-                await uploadBytes(storageRef, fileFoto);
+        let fotos = [...datos.fotos].map(async fileFoto => {
+            let srcRef = `perdidos/${nuevaPublicacion.id}/${nuevaPublicacion.fecha}-${fileFoto.name}`;
 
-                return await getDownloadURL(ref(storage, srcRef));
-            })
+            // Subir cada foto
+            const storageRef = ref(storage, srcRef);
+            await uploadBytes(storageRef, fileFoto);
 
-            nuevaPublicacion.fotos = await Promise.all(fotos) as string[];
-        } catch(error){
-            // Error al subir la foto
-            console.error(error);
-        }
+            return await getDownloadURL(ref(storage, srcRef));
+        })
+
+        nuevaPublicacion.fotos = await Promise.all(fotos) as string[];
+    } catch(error){
+        // Error al subir la foto
+        console.error(error);
     }
+
+    // Si no se subió ninguna foto, no se crea la publicación
+    if(nuevaPublicacion.fotos.length <= 0) return;
+
+    const raza = await obtenerRaza(nuevaPublicacion.fotos);
+    nuevaPublicacion.raza = raza;
 
     try{
         // Crear un documento en la colección de perdidos
@@ -202,28 +211,35 @@ export async function crearPublicacionEncontrado(datos: PublicacionEncontradoFor
         descripcion: datos.descripcion,
         telefono: datos.telefono,
         direccion: datos.direccion,
-        fotos: []
+        fotos: [],
+        raza: ""
     }
 
     // Subir las fotos de la publicación
-    if(datos.fotos.length > 0){
-        try{
-            let fotos = [...datos.fotos].map(async fileFoto => {
-                let srcRef = `encontrados/${nuevaPublicacion.id}/${nuevaPublicacion.fecha}-${fileFoto.name}`;
+    try{
+        if(datos.fotos.length <= 0) throw new Error("No se ha subido ninguna foto");
+        
+        let fotos = [...datos.fotos].map(async fileFoto => {
+            let srcRef = `encontrados/${nuevaPublicacion.id}/${nuevaPublicacion.fecha}-${fileFoto.name}`;
 
-                // Subir cada foto
-                const storageRef = ref(storage, srcRef);
-                await uploadBytes(storageRef, fileFoto);
+            // Subir cada foto
+            const storageRef = ref(storage, srcRef);
+            await uploadBytes(storageRef, fileFoto);
 
-                return await getDownloadURL(ref(storage, srcRef));
-            })
+            return await getDownloadURL(ref(storage, srcRef));
+        })
 
-            nuevaPublicacion.fotos = await Promise.all(fotos) as string[];
-        } catch(error){
-            // Error al subir la foto
-            console.error(error);
-        }
+        nuevaPublicacion.fotos = await Promise.all(fotos) as string[];
+    } catch(error){
+        // Error al subir la foto
+        console.error(error);
     }
+
+    // Si no se subió ninguna foto, no se crea la publicación
+    if(nuevaPublicacion.fotos.length <= 0) return;
+
+    const raza = await obtenerRaza(nuevaPublicacion.fotos);
+    nuevaPublicacion.raza = raza;
 
     try{
         // Crear un documento en la colección de encontrados
