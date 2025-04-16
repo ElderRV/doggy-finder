@@ -53,27 +53,38 @@ export function obtenerRol(usuario: AuthUser): Roles{
 }
 
 export async function obtenerRaza(fotosUrls: string[]): Promise<string> {
-    let data;
+    const promises = fotosUrls.map(async url => {
+        try{
+            const res = await fetch(`${import.meta.env.VITE_API_URL}${import.meta.env.VITE_API_BREED_ENDPOINT}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    url
+                })
+            });
+            const data = await res.json();
+
+            if(data.error) return "Desconocida";
+
+            return data.breed;
+        } catch(err){
+            console.error(err);
+            return "Desconocida";
+        }
+    })
     
-    try{
-        // TODO: ¿Utilizar una o todas las fotos?
-        // TODO: Se podría iterar sobre todas las fotos para obtener la raza más común pero también habría más carga para el servidor
-        const res = await fetch(`${import.meta.env.VITE_API_URL}${import.meta.env.VITE_API_BREED_ENDPOINT}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                url: fotosUrls[0]
-            })
-        });
-        data = await res.json();
-    } catch(err){
-        console.error(err);
-        return "Desconocida";
-    }
-    
-    if(data.error) return "Desconocida";
-    
-    return data.breed;
+    const razas = await Promise.all(promises);
+
+    // Se obtiene la raza más común
+    const frecuencias = razas.reduce((acc: { [key: string]: number }, raza) => {
+        acc[raza] = (acc[raza] || 0) + 1;
+        return acc;
+    }, {});
+
+    const arrayFrecuencias = Object.entries(frecuencias);
+    const raza = [...arrayFrecuencias].sort((a, b) => b[1] - a[1])[0][0];
+
+    return raza;
 }
