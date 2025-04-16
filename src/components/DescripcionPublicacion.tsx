@@ -121,7 +121,7 @@ function DescripcionPublicacion({ tipo, obtenerPublicacion, borrarPublicacion }:
                 <MapaUbicacion className="border shadow rounded-md" ubicacion={publicacion.direccion} />
             </div>
 
-            <SliderSimilares tipo={tipo} raza="raza_del_perro" />
+            <SliderSimilares tipo={tipo} raza={publicacion.raza || "Desconocida"} />
 
             <Comentarios />
         </main>

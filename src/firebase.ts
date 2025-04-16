@@ -145,7 +145,6 @@ export async function crearPublicacionPerdido(datos: PublicacionPerdidoForm & { 
 }
 
 export async function editarPublicacionPerdido(id: string, datos: PublicacionPerdidoForm & { fotosDB: {url: string, borrar: boolean}[], fotos: File[] }){
-    console.log(datos);
     let publicacion = await obtenerPublicacionPerdido(id);
     if(!publicacion) return;
 
@@ -267,7 +266,6 @@ export async function crearPublicacionEncontrado(datos: PublicacionEncontradoFor
 }
 
 export async function editarPublicacionEncontrado(id: string, datos: PublicacionEncontradoForm & { fotosDB: {url: string, borrar: boolean}[], fotos: File[] }){
-    console.log(datos);
     let publicacion = await obtenerPublicacionEncontrado(id);
     if(!publicacion) return;
 
@@ -376,4 +374,23 @@ export async function borrarComentario(idComentario: string){
     } catch(error){
         console.error("Error al borrar el comentario", error);
     }
+}
+
+// Perros similares
+export async function buscarPerrosSimilares(tipo: string, raza: string){
+    let publicaciones: PublicacionEncontradoDB[] | PublicacionPerdidoDB[] = [];
+
+    // Si un perro fue perdido, se busca en la colección de encontrados y viceversa
+    const tipoPublicacion = tipo === "perdido" ? "encontrados" : "perdidos";
+
+    try{
+        const q = query(collection(db, tipoPublicacion), where("raza", "==", raza), orderBy("fecha", "desc"));
+        const docs = await getDocs(q);
+
+        publicaciones = docs.docs.map(doc => doc.data() as PublicacionEncontradoDB | PublicacionPerdidoDB);
+    } catch(error){
+        console.error(`Error al obtener las publicaciones de perros ${tipo}`, error);
+    }
+
+    return publicaciones;
 }

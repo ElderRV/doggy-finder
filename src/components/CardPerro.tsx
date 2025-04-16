@@ -60,7 +60,7 @@ function CardPerro({ coleccion, data: { id, fecha, nombreCreador, nombre, descri
                         cargandoComponent={<></>}
                         errorComponent={<></>}
                     >
-                        <div className="self-end flex gap-2">
+                        <div className="self-end flex gap-2 mb-2">
                             <Link
                                 className={buttonVariants({ variant: "outline", className: "text-yellow-500 hover:text-yellow-500" })}
                                 to={`/editar-${coleccion.slice(0,-1)}/${id}`}>
