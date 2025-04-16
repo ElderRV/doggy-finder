@@ -67,6 +67,20 @@ export async function borrarPublicacion(coleccion: string, idPublicacion: string
     } catch(error){
         console.error("Error al borrar las imágenes de la publicación", error);
     }
+
+    // Borrar comentarios
+    try{
+        const q = query(collection(db, "comentarios"), where("idPublicacion", "==", idPublicacion));
+        const querySnapshot = await getDocs(q);
+
+        const promesas = querySnapshot.docs.map(async doc => {
+            await deleteDoc(doc.ref);
+        })
+
+        await Promise.all(promesas);
+    } catch(error){
+        console.error("Error al borrar los comentarios de la publicación", error);
+    }
 }
 
 // Perdidos
