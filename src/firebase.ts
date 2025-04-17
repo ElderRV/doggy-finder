@@ -83,6 +83,13 @@ export async function borrarPublicacion(coleccion: string, idPublicacion: string
     }
 }
 
+export async function subirFoto(srcRef: string, file: File){
+    const storageRef = ref(storage, srcRef);
+    await uploadBytes(storageRef, file);
+
+    return await getDownloadURL(ref(storage, srcRef));
+}
+
 // Perdidos
 export async function obtenerPublicacionesPerdidos(){
     return await obtenerPublicaciones<PublicacionPerdidoDB>("perdidos");
@@ -93,6 +100,8 @@ export async function obtenerPublicacionPerdido(id: string){
 }
 
 export async function crearPublicacionPerdido(datos: PublicacionPerdidoForm & { idCreador: string, nombreCreador: string, fotos: File[] }){
+    if(datos.fotos.length <= 0) throw new Error("No se ha subido ninguna foto");
+
     let nuevaPublicacion: PublicacionPerdidoDB = {
         id: Date.now() + datos.idCreador,
         fecha: Date.now(),
@@ -106,26 +115,20 @@ export async function crearPublicacionPerdido(datos: PublicacionPerdidoForm & { 
         fotos: [],
         raza: ""
     }
-
-    if(datos.fotos.length <= 0) throw new Error("No se ha subido ninguna foto");
     
     // Subir las fotos de la publicación
-    try{
-        let fotos = [...datos.fotos].map(async fileFoto => {
-            let srcRef = `perdidos/${nuevaPublicacion.id}/${nuevaPublicacion.fecha}-${fileFoto.name}`;
-
+    let fotos = [...datos.fotos].map(async fileFoto => {
+        try{
             // Subir cada foto
-            const storageRef = ref(storage, srcRef);
-            await uploadBytes(storageRef, fileFoto);
-
-            return await getDownloadURL(ref(storage, srcRef));
-        })
-
-        nuevaPublicacion.fotos = await Promise.all(fotos) as string[];
-    } catch(error){
-        // Error al subir la foto
-        console.error(error);
-    }
+            let srcRef = `perdidos/${nuevaPublicacion.id}/${nuevaPublicacion.fecha}-${fileFoto.name}`;
+            return await subirFoto(srcRef, fileFoto);
+        } catch(error){
+            // Error al subir la foto
+            console.error(error);
+            return null;
+        }
+    })
+    nuevaPublicacion.fotos = (await Promise.all(fotos)).filter(foto => foto !== null);
 
     // Si no se subió ninguna foto, no se crea la publicación
     if(nuevaPublicacion.fotos.length <= 0) throw new Error("Hubo un error al subir las fotos");
@@ -236,6 +239,8 @@ export async function obtenerPublicacionEncontrado(id: string){
 }
 
 export async function crearPublicacionEncontrado(datos: PublicacionEncontradoForm & { idCreador: string, nombreCreador: string, fotos: File[] }){
+    if(datos.fotos.length <= 0) throw new Error("No se ha subido ninguna foto");
+
     let nuevaPublicacion: PublicacionEncontradoDB = {
         id: Date.now() + datos.idCreador,
         fecha: Date.now(),
@@ -249,26 +254,20 @@ export async function crearPublicacionEncontrado(datos: PublicacionEncontradoFor
         fotos: [],
         raza: ""
     }
-    
-    if(datos.fotos.length <= 0) throw new Error("No se ha subido ninguna foto");
 
     // Subir las fotos de la publicación
-    try{    
-        let fotos = [...datos.fotos].map(async fileFoto => {
-            let srcRef = `encontrados/${nuevaPublicacion.id}/${nuevaPublicacion.fecha}-${fileFoto.name}`;
-
+    let fotos = [...datos.fotos].map(async fileFoto => {
+        try{
             // Subir cada foto
-            const storageRef = ref(storage, srcRef);
-            await uploadBytes(storageRef, fileFoto);
-
-            return await getDownloadURL(ref(storage, srcRef));
-        })
-
-        nuevaPublicacion.fotos = await Promise.all(fotos) as string[];
-    } catch(error){
-        // Error al subir la foto
-        console.error(error);
-    }
+            let srcRef = `encontrados/${nuevaPublicacion.id}/${nuevaPublicacion.fecha}-${fileFoto.name}`;
+            return await subirFoto(srcRef, fileFoto);
+        } catch(error){
+            // Error al subir la foto
+            console.error(error);
+            return null;
+        }
+    })
+    nuevaPublicacion.fotos = (await Promise.all(fotos)).filter(foto => foto !== null);
 
     // Si no se subió ninguna foto, no se crea la publicación
     if(nuevaPublicacion.fotos.length <= 0) throw new Error("Hubo un error al subir las fotos");
