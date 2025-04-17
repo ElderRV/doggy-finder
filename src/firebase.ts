@@ -6,7 +6,7 @@ import { deleteObject, getDownloadURL, getStorage, listAll, ref, uploadBytes } f
 
 import { Comentario, PublicacionEncontradoDB, PublicacionEncontradoForm, PublicacionPerdidoDB, PublicacionPerdidoForm } from "./types";
 
-import { obtenerRaza } from "./lib/utils";
+import { incluyePerro, obtenerRaza } from "./lib/utils";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -106,11 +106,11 @@ export async function crearPublicacionPerdido(datos: PublicacionPerdidoForm & { 
         fotos: [],
         raza: ""
     }
+
+    if(datos.fotos.length <= 0) throw new Error("No se ha subido ninguna foto");
     
     // Subir las fotos de la publicación
     try{
-        if(datos.fotos.length <= 0) throw new Error("No se ha subido ninguna foto");
-
         let fotos = [...datos.fotos].map(async fileFoto => {
             let srcRef = `perdidos/${nuevaPublicacion.id}/${nuevaPublicacion.fecha}-${fileFoto.name}`;
 
@@ -128,8 +128,30 @@ export async function crearPublicacionPerdido(datos: PublicacionPerdidoForm & { 
     }
 
     // Si no se subió ninguna foto, no se crea la publicación
-    if(nuevaPublicacion.fotos.length <= 0) return;
+    if(nuevaPublicacion.fotos.length <= 0) throw new Error("Hubo un error al subir las fotos");
 
+    // Verificar si las fotos contienen perros, si no, eliminar las que no
+    // Se tiene que hacer después de subirlas porque la API de reconocimiento de perros no acepta Files
+    try{
+        const fotos = await incluyePerro(nuevaPublicacion.fotos);
+
+        const fotosValidas = fotos.filter(foto => foto.includes_dog).map(foto => foto.url);
+        if(fotosValidas.length <= 0) throw new Error("Las fotos no contienen perros");
+
+        // Sobreescribir las fotos válidas
+        nuevaPublicacion.fotos = fotosValidas;
+
+        // Borrar las fotos que no contienen perros
+        const fotosBorrar = fotos.filter(foto => !foto.includes_dog).map(foto => foto.url);
+        fotosBorrar.forEach(foto => {
+            deleteObject(ref(storage, foto));
+        })
+    } catch(error){
+        console.error("Error al detectar perros en las imágenes", error);
+        if(error instanceof Error) throw new Error(error.message);
+    }
+
+    // Se obtiene la raza de las fotos subidas
     const raza = await obtenerRaza(nuevaPublicacion.fotos);
     nuevaPublicacion.raza = raza;
 
@@ -227,11 +249,11 @@ export async function crearPublicacionEncontrado(datos: PublicacionEncontradoFor
         fotos: [],
         raza: ""
     }
+    
+    if(datos.fotos.length <= 0) throw new Error("No se ha subido ninguna foto");
 
     // Subir las fotos de la publicación
-    try{
-        if(datos.fotos.length <= 0) throw new Error("No se ha subido ninguna foto");
-        
+    try{    
         let fotos = [...datos.fotos].map(async fileFoto => {
             let srcRef = `encontrados/${nuevaPublicacion.id}/${nuevaPublicacion.fecha}-${fileFoto.name}`;
 
@@ -249,8 +271,30 @@ export async function crearPublicacionEncontrado(datos: PublicacionEncontradoFor
     }
 
     // Si no se subió ninguna foto, no se crea la publicación
-    if(nuevaPublicacion.fotos.length <= 0) return;
+    if(nuevaPublicacion.fotos.length <= 0) throw new Error("Hubo un error al subir las fotos");
 
+    // Verificar si las fotos contienen perros, si no, eliminar las que no
+    // Se tiene que hacer después de subirlas porque la API de reconocimiento de perros no acepta Files
+    try{
+        const fotos = await incluyePerro(nuevaPublicacion.fotos);
+
+        const fotosValidas = fotos.filter(foto => foto.includes_dog).map(foto => foto.url);
+        if(fotosValidas.length <= 0) throw new Error("Las fotos no contienen perros");
+
+        // Sobreescribir las fotos válidas
+        nuevaPublicacion.fotos = fotosValidas;
+
+        // Borrar las fotos que no contienen perros
+        const fotosBorrar = fotos.filter(foto => !foto.includes_dog).map(foto => foto.url);
+        fotosBorrar.forEach(foto => {
+            deleteObject(ref(storage, foto));
+        })
+    } catch(error){
+        console.error("Error al detectar perros en las imágenes", error);
+        if(error instanceof Error) throw new Error(error.message);
+    }
+
+    // Se obtiene la raza de las fotos subidas
     const raza = await obtenerRaza(nuevaPublicacion.fotos);
     nuevaPublicacion.raza = raza;
 

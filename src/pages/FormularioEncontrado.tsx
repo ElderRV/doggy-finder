@@ -59,7 +59,7 @@ function FormularioEncontrado(){
             await toast.promise(promesa, {
                 loading: "Publicando perro encontrado...",
                 success: "Perro encontrado publicado",
-                error: "Hubo un error al publicar el perro encontrado"
+                error: error => error.message ?? "Hubo un error al publicar el perro encontrado"
             })
         } else {
             //? Si hay ID, se está editando una publicación

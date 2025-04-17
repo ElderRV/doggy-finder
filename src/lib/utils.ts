@@ -88,3 +88,40 @@ export async function obtenerRaza(fotosUrls: string[]): Promise<string> {
 
     return raza;
 }
+
+interface IncluyePerroResultado {
+    url: string;
+    includes_dog: boolean;
+}
+
+export async function incluyePerro(fotosUrls: string[]): Promise<IncluyePerroResultado[]> {
+    const promises = fotosUrls.map(async url => {
+        try{
+            const res = await fetch(`${import.meta.env.VITE_API_URL}${import.meta.env.VITE_API_SEARCH_DOG_ENDPOINT}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    url
+                })
+            });
+            const data = await res.json();
+
+            return {
+                url: url,
+                includes_dog: data.includes_dog
+            } as IncluyePerroResultado;
+        } catch(err){
+            console.error(err);
+            return {
+                url: url,
+                includes_dog: false
+            } as IncluyePerroResultado;
+        }
+    })
+
+    const resultados = await Promise.all(promises);
+    
+    return resultados;
+}
