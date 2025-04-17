@@ -120,7 +120,7 @@ export async function crearPublicacionPerdido(datos: PublicacionPerdidoForm & { 
     let fotos = [...datos.fotos].map(async fileFoto => {
         try{
             // Subir cada foto
-            let srcRef = `perdidos/${nuevaPublicacion.id}/${nuevaPublicacion.fecha}-${fileFoto.name}`;
+            const srcRef = `perdidos/${nuevaPublicacion.id}/${nuevaPublicacion.fecha}-${fileFoto.name}`;
             return await subirFoto(srcRef, fileFoto);
         } catch(error){
             // Error al subir la foto
@@ -182,6 +182,54 @@ export async function editarPublicacionPerdido(id: string, datos: PublicacionPer
         direccion: datos.direccion
     }
 
+    // Subir las fotos nuevas
+    if(datos.fotos.length > 0){
+        let fotos = [...datos.fotos].map(async fileFoto => {
+            try{
+                // Subir cada foto
+                const srcRef = `perdidos/${id}/${publicacion.fecha}-${fileFoto.name}`;
+                return await subirFoto(srcRef, fileFoto);
+            } catch(error){
+                // Error al subir la foto
+                console.error(error);
+                return null;
+            }
+        })
+
+        const fotosAnteriores = datos.fotosDB.filter(foto => !foto.borrar).map(foto => foto.url);
+        const nuevasFotos = (await Promise.all(fotos)).filter(foto => foto !== null);
+        publicacion.fotos = [...fotosAnteriores, ...nuevasFotos];
+    }
+
+    // Si no hay ninguna foto, no se edita la publicación
+    if(publicacion.fotos.length <= 0) throw new Error("La publicación no contiene fotos");
+
+    // Verificar si las fotos contienen perros, si no, eliminar las que no
+    // Se tiene que hacer después de subirlas porque la API de reconocimiento de perros no acepta Files
+    try{
+        const fotos = await incluyePerro(publicacion.fotos);
+
+        const fotosValidas = fotos.filter(foto => foto.includes_dog).map(foto => foto.url);
+        if(fotosValidas.length <= 0) throw new Error("Las fotos no contienen perros");
+
+        // Sobreescribir las fotos válidas
+        publicacion.fotos = fotosValidas;
+
+        // Borrar las fotos que no contienen perros
+        const fotosBorrar = fotos.filter(foto => !foto.includes_dog).map(foto => foto.url);
+        fotosBorrar.forEach(foto => {
+            deleteObject(ref(storage, foto));
+        })
+    } catch(error){
+        console.error("Error al detectar perros en las imágenes", error);
+        if(error instanceof Error) throw new Error(error.message);
+    }
+
+    // Se obtiene la raza de las fotos subidas
+    const raza = await obtenerRaza(publicacion.fotos);
+    publicacion.raza = raza;
+
+    // Si no hubo errores en la subida de fotos y no se cancela el proceso
     // Borrar fotos que ya están en la base de datos y fueron marcadas para borrar
     try{
         const fotosBorrar = datos.fotosDB.filter(foto => foto.borrar);
@@ -190,28 +238,6 @@ export async function editarPublicacionPerdido(id: string, datos: PublicacionPer
         })
     } catch(error){
         console.error(error);
-    }
-
-    // Subir las fotos nuevas
-    if(datos.fotos.length > 0){
-        try{
-            let fotos = [...datos.fotos].map(async fileFoto => {
-                let srcRef = `perdidos/${id}/${publicacion.fecha}-${fileFoto.name}`;
-
-                // Subir cada foto
-                const storageRef = ref(storage, srcRef);
-                await uploadBytes(storageRef, fileFoto);
-
-                return await getDownloadURL(ref(storage, srcRef));
-            })
-
-            const fotosAnteriores = datos.fotosDB.filter(foto => !foto.borrar).map(foto => foto.url);
-            const nuevasFotos = await Promise.all(fotos) as string[];
-            publicacion.fotos = [...fotosAnteriores, ...nuevasFotos];
-        } catch(error){
-            // Error al subir la foto
-            console.error(error);
-        }
     }
 
     try{
@@ -259,7 +285,7 @@ export async function crearPublicacionEncontrado(datos: PublicacionEncontradoFor
     let fotos = [...datos.fotos].map(async fileFoto => {
         try{
             // Subir cada foto
-            let srcRef = `encontrados/${nuevaPublicacion.id}/${nuevaPublicacion.fecha}-${fileFoto.name}`;
+            const srcRef = `encontrados/${nuevaPublicacion.id}/${nuevaPublicacion.fecha}-${fileFoto.name}`;
             return await subirFoto(srcRef, fileFoto);
         } catch(error){
             // Error al subir la foto
@@ -321,6 +347,54 @@ export async function editarPublicacionEncontrado(id: string, datos: Publicacion
         direccion: datos.direccion
     }
 
+    // Subir las fotos nuevas
+    if(datos.fotos.length > 0){
+        let fotos = [...datos.fotos].map(async fileFoto => {
+            try{
+                // Subir cada foto
+                const srcRef = `encontrados/${id}/${publicacion.fecha}-${fileFoto.name}`;
+                return await subirFoto(srcRef, fileFoto);
+            } catch(error){
+                // Error al subir la foto
+                console.error(error);
+                return null;
+            }
+        })
+
+        const fotosAnteriores = datos.fotosDB.filter(foto => !foto.borrar).map(foto => foto.url);
+        const nuevasFotos = (await Promise.all(fotos)).filter(foto => foto !== null);
+        publicacion.fotos = [...fotosAnteriores, ...nuevasFotos];
+    }
+
+    // Si no hay ninguna foto, no se edita la publicación
+    if(publicacion.fotos.length <= 0) throw new Error("La publicación no contiene fotos");
+
+    // Verificar si las fotos contienen perros, si no, eliminar las que no
+    // Se tiene que hacer después de subirlas porque la API de reconocimiento de perros no acepta Files
+    try{
+        const fotos = await incluyePerro(publicacion.fotos);
+
+        const fotosValidas = fotos.filter(foto => foto.includes_dog).map(foto => foto.url);
+        if(fotosValidas.length <= 0) throw new Error("Las fotos no contienen perros");
+
+        // Sobreescribir las fotos válidas
+        publicacion.fotos = fotosValidas;
+
+        // Borrar las fotos que no contienen perros
+        const fotosBorrar = fotos.filter(foto => !foto.includes_dog).map(foto => foto.url);
+        fotosBorrar.forEach(foto => {
+            deleteObject(ref(storage, foto));
+        })
+    } catch(error){
+        console.error("Error al detectar perros en las imágenes", error);
+        if(error instanceof Error) throw new Error(error.message);
+    }
+
+    // Se obtiene la raza de las fotos subidas
+    const raza = await obtenerRaza(publicacion.fotos);
+    publicacion.raza = raza;
+
+    // Si no hubo errores en la subida de fotos y no se cancela el proceso
     // Borrar fotos que ya están en la base de datos y fueron marcadas para borrar
     try{
         const fotosBorrar = datos.fotosDB.filter(foto => foto.borrar);
@@ -329,28 +403,6 @@ export async function editarPublicacionEncontrado(id: string, datos: Publicacion
         })
     } catch(error){
         console.error(error);
-    }
-
-    // Subir las fotos nuevas
-    if(datos.fotos.length > 0){
-        try{
-            let fotos = [...datos.fotos].map(async fileFoto => {
-                let srcRef = `encontrados/${id}/${publicacion.fecha}-${fileFoto.name}`;
-
-                // Subir cada foto
-                const storageRef = ref(storage, srcRef);
-                await uploadBytes(storageRef, fileFoto);
-
-                return await getDownloadURL(ref(storage, srcRef));
-            })
-
-            const fotosAnteriores = datos.fotosDB.filter(foto => !foto.borrar).map(foto => foto.url);
-            const nuevasFotos = await Promise.all(fotos) as string[];
-            publicacion.fotos = [...fotosAnteriores, ...nuevasFotos];
-        } catch(error){
-            // Error al subir la foto
-            console.error(error);
-        }
     }
 
     try{

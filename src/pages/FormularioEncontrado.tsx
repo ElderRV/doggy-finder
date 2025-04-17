@@ -64,7 +64,7 @@ function FormularioEncontrado(){
         } else {
             //? Si hay ID, se está editando una publicación
             // Si no hay imagenes seleccionadas y no hay actuales, se muestra un error
-            if(fotos.length <= 0 && fotosDB.length <= 0){
+            if(fotos.length <= 0 && fotosDB.filter(foto => !foto.borrar).length <= 0){
                 toast.error("Selecciona al menos una foto");
                 return;
             }
