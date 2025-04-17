@@ -187,7 +187,7 @@ export async function editarPublicacionPerdido(id: string, datos: PublicacionPer
         let fotos = [...datos.fotos].map(async fileFoto => {
             try{
                 // Subir cada foto
-                const srcRef = `perdidos/${id}/${publicacion.fecha}-${fileFoto.name}`;
+                const srcRef = `perdidos/${id}/${publicacion.fecha}-${crypto.randomUUID().split("-")[0]}-${fileFoto.name}`;
                 return await subirFoto(srcRef, fileFoto);
             } catch(error){
                 // Error al subir la foto
@@ -352,7 +352,7 @@ export async function editarPublicacionEncontrado(id: string, datos: Publicacion
         let fotos = [...datos.fotos].map(async fileFoto => {
             try{
                 // Subir cada foto
-                const srcRef = `encontrados/${id}/${publicacion.fecha}-${fileFoto.name}`;
+                const srcRef = `encontrados/${id}/${publicacion.fecha}-${crypto.randomUUID().split("-")[0]}-${fileFoto.name}`;
                 return await subirFoto(srcRef, fileFoto);
             } catch(error){
                 // Error al subir la foto
