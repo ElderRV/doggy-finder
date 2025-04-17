@@ -59,7 +59,7 @@ function FormularioPerdido(){
             await toast.promise(promesa, {
                 loading: "Publicando perro perdido...",
                 success: "Perro perdido publicado",
-                error: "Hubo un error al publicar el perro perdido"
+                error: error => error.message ?? "Hubo un error al publicar el perro perdido"
             })
         } else {
             //? Si hay ID, se está editando una publicación
@@ -81,7 +81,7 @@ function FormularioPerdido(){
             await toast.promise(promesa, {
                 loading: "Editando perro perdido...",
                 success: "Perro perdido editado",
-                error: "Hubo un error al editar el perro perdido"
+                error: error => error.message ?? "Hubo un error al encontrar el perro perdido"
             })
         }
 

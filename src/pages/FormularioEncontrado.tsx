@@ -80,7 +80,7 @@ function FormularioEncontrado(){
             await toast.promise(promesa, {
                 loading: "Editando perro encontrado...",
                 success: "Perro encontrado editado",
-                error: "Hubo un error al editar el perro encontrado"
+                error: error => error.message ?? "Hubo un error al editar el perro encontrado"
             })
         }
 
