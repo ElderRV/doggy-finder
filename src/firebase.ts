@@ -6,7 +6,7 @@ import { deleteObject, getDownloadURL, getStorage, listAll, ref, uploadBytes } f
 
 import { Comentario, PublicacionEncontradoDB, PublicacionEncontradoForm, PublicacionPerdidoDB, PublicacionPerdidoForm } from "./types";
 
-import { incluyePerro, obtenerRaza } from "./lib/utils";
+import { incluyeNSFW, incluyePerro, obtenerRaza } from "./lib/utils";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -133,28 +133,51 @@ export async function crearPublicacionPerdido(datos: PublicacionPerdidoForm & { 
     // Si no se subió ninguna foto, no se crea la publicación
     if(nuevaPublicacion.fotos.length <= 0) throw new Error("Hubo un error al subir las fotos");
 
-    // Verificar si las fotos contienen perros, si no, eliminar las que no
-    // Se tiene que hacer después de subirlas porque la API de reconocimiento de perros no acepta Files
+    //? Verificar si las fotos son nsfw
+    // Se tiene que hacer después de subirlas porque acepta solo urls
     try{
-        const fotos = await incluyePerro(nuevaPublicacion.fotos);
+        const fotos = await incluyeNSFW(nuevaPublicacion.fotos);
 
-        const fotosValidas = fotos.filter(foto => foto.includes_dog).map(foto => foto.url);
-        if(fotosValidas.length <= 0) throw new Error("Las fotos no contienen perros");
+        // Borrar las fotos que contienen nsfw
+        const fotosBorrar = fotos.filter(foto => foto.nsfw).map(foto => foto.url);
+        fotosBorrar.forEach(foto => {
+            deleteObject(ref(storage, foto));
+        })
+
+        const fotosValidas = fotos.filter(foto => !foto.nsfw).map(foto => foto.url);
+        if(fotosValidas.length <= 0) throw new Error("Las fotos son inválidas");
+
+        console.log(fotosValidas);
 
         // Sobreescribir las fotos válidas
         nuevaPublicacion.fotos = fotosValidas;
+    } catch(error){
+        console.error("Error al detectar nsfw en las imágenes", error);
+        if(error instanceof Error) throw new Error(error.message);
+    }
+
+    //? Verificar si las fotos contienen perros, si no, eliminar las que no
+    // Se tiene que hacer después de subirlas porque la API de reconocimiento de perros no acepta Files
+    try{
+        const fotos = await incluyePerro(nuevaPublicacion.fotos);
 
         // Borrar las fotos que no contienen perros
         const fotosBorrar = fotos.filter(foto => !foto.includes_dog).map(foto => foto.url);
         fotosBorrar.forEach(foto => {
             deleteObject(ref(storage, foto));
         })
+
+        const fotosValidas = fotos.filter(foto => foto.includes_dog).map(foto => foto.url);
+        if(fotosValidas.length <= 0) throw new Error("Las fotos no contienen perros");
+
+        // Sobreescribir las fotos válidas
+        nuevaPublicacion.fotos = fotosValidas;
     } catch(error){
         console.error("Error al detectar perros en las imágenes", error);
         if(error instanceof Error) throw new Error(error.message);
     }
 
-    // Se obtiene la raza de las fotos subidas
+    //? Se obtiene la raza de las fotos subidas
     const raza = await obtenerRaza(nuevaPublicacion.fotos);
     nuevaPublicacion.raza = raza;
 
@@ -204,28 +227,49 @@ export async function editarPublicacionPerdido(id: string, datos: PublicacionPer
     // Si no hay ninguna foto, no se edita la publicación
     if(publicacion.fotos.length <= 0) throw new Error("La publicación no contiene fotos");
 
-    // Verificar si las fotos contienen perros, si no, eliminar las que no
-    // Se tiene que hacer después de subirlas porque la API de reconocimiento de perros no acepta Files
+    //? Verificar si las fotos son nsfw
+    // Se tiene que hacer después de subirlas porque acepta solo urls
     try{
-        const fotos = await incluyePerro(publicacion.fotos);
+        const fotos = await incluyeNSFW(publicacion.fotos);
 
-        const fotosValidas = fotos.filter(foto => foto.includes_dog).map(foto => foto.url);
-        if(fotosValidas.length <= 0) throw new Error("Las fotos no contienen perros");
+        // Borrar las fotos que contienen nsfw
+        const fotosBorrar = fotos.filter(foto => foto.nsfw).map(foto => foto.url);
+        fotosBorrar.forEach(foto => {
+            deleteObject(ref(storage, foto));
+        })
+
+        const fotosValidas = fotos.filter(foto => !foto.nsfw).map(foto => foto.url);
+        if(fotosValidas.length <= 0) throw new Error("Las fotos son inválidas");
 
         // Sobreescribir las fotos válidas
         publicacion.fotos = fotosValidas;
+    } catch(error){
+        console.error("Error al detectar nsfw en las imágenes", error);
+        if(error instanceof Error) throw new Error(error.message);
+    }
+
+    //? Verificar si las fotos contienen perros, si no, eliminar las que no
+    // Se tiene que hacer después de subirlas porque la API de reconocimiento de perros no acepta Files
+    try{
+        const fotos = await incluyePerro(publicacion.fotos);
 
         // Borrar las fotos que no contienen perros
         const fotosBorrar = fotos.filter(foto => !foto.includes_dog).map(foto => foto.url);
         fotosBorrar.forEach(foto => {
             deleteObject(ref(storage, foto));
         })
+
+        const fotosValidas = fotos.filter(foto => foto.includes_dog).map(foto => foto.url);
+        if(fotosValidas.length <= 0) throw new Error("Las fotos no contienen perros");
+
+        // Sobreescribir las fotos válidas
+        publicacion.fotos = fotosValidas;
     } catch(error){
         console.error("Error al detectar perros en las imágenes", error);
         if(error instanceof Error) throw new Error(error.message);
     }
 
-    // Se obtiene la raza de las fotos subidas
+    //? Se obtiene la raza de las fotos subidas
     const raza = await obtenerRaza(publicacion.fotos);
     publicacion.raza = raza;
 
@@ -298,28 +342,49 @@ export async function crearPublicacionEncontrado(datos: PublicacionEncontradoFor
     // Si no se subió ninguna foto, no se crea la publicación
     if(nuevaPublicacion.fotos.length <= 0) throw new Error("Hubo un error al subir las fotos");
 
-    // Verificar si las fotos contienen perros, si no, eliminar las que no
-    // Se tiene que hacer después de subirlas porque la API de reconocimiento de perros no acepta Files
+    //? Verificar si las fotos son nsfw
+    // Se tiene que hacer después de subirlas porque acepta solo urls
     try{
-        const fotos = await incluyePerro(nuevaPublicacion.fotos);
+        const fotos = await incluyeNSFW(nuevaPublicacion.fotos);
 
-        const fotosValidas = fotos.filter(foto => foto.includes_dog).map(foto => foto.url);
-        if(fotosValidas.length <= 0) throw new Error("Las fotos no contienen perros");
+        // Borrar las fotos que contienen nsfw
+        const fotosBorrar = fotos.filter(foto => foto.nsfw).map(foto => foto.url);
+        fotosBorrar.forEach(foto => {
+            deleteObject(ref(storage, foto));
+        })
+
+        const fotosValidas = fotos.filter(foto => !foto.nsfw).map(foto => foto.url);
+        if(fotosValidas.length <= 0) throw new Error("Las fotos son inválidas");
 
         // Sobreescribir las fotos válidas
         nuevaPublicacion.fotos = fotosValidas;
+    } catch(error){
+        console.error("Error al detectar nsfw en las imágenes", error);
+        if(error instanceof Error) throw new Error(error.message);
+    }
+
+    //? Verificar si las fotos contienen perros, si no, eliminar las que no
+    // Se tiene que hacer después de subirlas porque la API de reconocimiento de perros no acepta Files
+    try{
+        const fotos = await incluyePerro(nuevaPublicacion.fotos);
 
         // Borrar las fotos que no contienen perros
         const fotosBorrar = fotos.filter(foto => !foto.includes_dog).map(foto => foto.url);
         fotosBorrar.forEach(foto => {
             deleteObject(ref(storage, foto));
         })
+
+        const fotosValidas = fotos.filter(foto => foto.includes_dog).map(foto => foto.url);
+        if(fotosValidas.length <= 0) throw new Error("Las fotos no contienen perros");
+
+        // Sobreescribir las fotos válidas
+        nuevaPublicacion.fotos = fotosValidas;
     } catch(error){
         console.error("Error al detectar perros en las imágenes", error);
         if(error instanceof Error) throw new Error(error.message);
     }
 
-    // Se obtiene la raza de las fotos subidas
+    //? Se obtiene la raza de las fotos subidas
     const raza = await obtenerRaza(nuevaPublicacion.fotos);
     nuevaPublicacion.raza = raza;
 
@@ -369,28 +434,49 @@ export async function editarPublicacionEncontrado(id: string, datos: Publicacion
     // Si no hay ninguna foto, no se edita la publicación
     if(publicacion.fotos.length <= 0) throw new Error("La publicación no contiene fotos");
 
-    // Verificar si las fotos contienen perros, si no, eliminar las que no
-    // Se tiene que hacer después de subirlas porque la API de reconocimiento de perros no acepta Files
+    //? Verificar si las fotos son nsfw
+    // Se tiene que hacer después de subirlas porque acepta solo urls
     try{
-        const fotos = await incluyePerro(publicacion.fotos);
+        const fotos = await incluyeNSFW(publicacion.fotos);
 
-        const fotosValidas = fotos.filter(foto => foto.includes_dog).map(foto => foto.url);
-        if(fotosValidas.length <= 0) throw new Error("Las fotos no contienen perros");
+        // Borrar las fotos que contienen nsfw
+        const fotosBorrar = fotos.filter(foto => foto.nsfw).map(foto => foto.url);
+        fotosBorrar.forEach(foto => {
+            deleteObject(ref(storage, foto));
+        })
+
+        const fotosValidas = fotos.filter(foto => !foto.nsfw).map(foto => foto.url);
+        if(fotosValidas.length <= 0) throw new Error("Las fotos son inválidas");
 
         // Sobreescribir las fotos válidas
         publicacion.fotos = fotosValidas;
+    } catch(error){
+        console.error("Error al detectar nsfw en las imágenes", error);
+        if(error instanceof Error) throw new Error(error.message);
+    }
+
+    //? Verificar si las fotos contienen perros, si no, eliminar las que no
+    // Se tiene que hacer después de subirlas porque la API de reconocimiento de perros no acepta Files
+    try{
+        const fotos = await incluyePerro(publicacion.fotos);
 
         // Borrar las fotos que no contienen perros
         const fotosBorrar = fotos.filter(foto => !foto.includes_dog).map(foto => foto.url);
         fotosBorrar.forEach(foto => {
             deleteObject(ref(storage, foto));
         })
+
+        const fotosValidas = fotos.filter(foto => foto.includes_dog).map(foto => foto.url);
+        if(fotosValidas.length <= 0) throw new Error("Las fotos no contienen perros");
+
+        // Sobreescribir las fotos válidas
+        publicacion.fotos = fotosValidas;
     } catch(error){
         console.error("Error al detectar perros en las imágenes", error);
         if(error instanceof Error) throw new Error(error.message);
     }
 
-    // Se obtiene la raza de las fotos subidas
+    //? Se obtiene la raza de las fotos subidas
     const raza = await obtenerRaza(publicacion.fotos);
     publicacion.raza = raza;
 

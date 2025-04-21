@@ -125,3 +125,42 @@ export async function incluyePerro(fotosUrls: string[]): Promise<IncluyePerroRes
     
     return resultados;
 }
+
+interface IncluyeNSFWResultado {
+    url: string;
+    nsfw: boolean;
+}
+
+export async function incluyeNSFW(fotosUrls: string[]): Promise<IncluyeNSFWResultado[]> {
+    const promises = fotosUrls.map(async url => {
+        try{
+            const res = await fetch(`${import.meta.env.VITE_API_URL}${import.meta.env.VITE_API_NSFW_ENDPOINT}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    url
+                })
+            });
+            const data = await res.json();
+
+            if(data.error) throw new Error(data.message);
+
+            return {
+                url: url,
+                nsfw: data.nsfw
+            } as IncluyeNSFWResultado;
+        } catch(err){
+            console.error(err);
+            return {
+                url: url,
+                nsfw: true // Si no se puede verificar, se asume que es NSFW para evitar problemas
+            } as IncluyeNSFWResultado;
+        }
+    })
+
+    const resultados = await Promise.all(promises);
+    
+    return resultados;
+}
