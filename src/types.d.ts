@@ -38,13 +38,14 @@ export type PublicacionPerdidoDB = Omit<PublicacionPerdidoForm, "fotos"> & {
     raza: string;
 }
 
-export interface FotoNueva {
+export interface FotoOptimizada {
     id: string;
     url: string;
     file: File;
+    progreso: number;
 }
 
-export type FotosNuevas = FotoNueva[];
+export type FotosOptimizadas = FotoOptimizada[];
 
 export interface Coordenadas {
     longitud: number;

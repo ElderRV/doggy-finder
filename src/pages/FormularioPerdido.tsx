@@ -1,20 +1,22 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router";
+import toast from "react-hot-toast";
 
 import useTitle from "@/hooks/useTitle";
 import { useAuth } from "@/context/AuthProvider";
+import useImagenesOptimizadas from "@/hooks/useImagenesOptimizadas";
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 import SelectorDeUbicacion from "@/components/SelectorUbicacion";
-import { FotosNuevas, PublicacionPerdidoForm, Coordenadas } from "@/types";
+import ImagenFormulario from "@/components/ImagenFormulario";
+
 import { Textarea } from "@/components/ui/textarea";
 import { crearPublicacionPerdido, editarPublicacionPerdido, obtenerPublicacionPerdido } from "@/firebase";
-import toast from "react-hot-toast";
-import ImagenFormulario from "@/components/ImagenFormulario";
+import { PublicacionPerdidoForm, Coordenadas } from "@/types";
 
 function FormularioPerdido(){
     const { usuario } = useAuth()!;
@@ -28,8 +30,8 @@ function FormularioPerdido(){
         }
     });
     const [fotosDB, setFotosDB] = useState<{url: string, borrar: boolean}[]>([]);
-    const [fotos, setFotos] = useState<FotosNuevas>([]);
     const [coordenadas, setCoordenadas] = useState<Coordenadas>({ longitud: -103, latitud: 21 });
+    const { imagenesOptimizadas: fotos, optimizarImagenes, limpiarImagenes, borrarImagen: handleBorrarImagenLocal } = useImagenesOptimizadas();
     const [titulo, setTitulo] = useState("Publicar perdido | DoggyFinder");
 
     const navigate = useNavigate();
@@ -88,40 +90,22 @@ function FormularioPerdido(){
     }
 
     // Mostrar la vista previa de las imágenes que se están subiendo
-    const handleFoto = (e: any) => {
-        const files = e.target.files;
+    const handleFoto = async (e: any) => {
+        const files: File[] = e.target.files;
 
         // Si no se suben fotos, se limpia el estado
         // para que coincida el estado del input y los blobs de las imagenes
-        if(files.length <= 0){
-            setFotos([]);
-            return;
-        }
+        if(files.length <= 0) return limpiarImagenes();
 
-        // Se crea la URL con el Blob para la previsualización
-        let fotosNuevas: FotosNuevas = [];
-        for(let file of files){
-            const url = URL.createObjectURL(file);
-
-            fotosNuevas.push({
-                id: Date.now()+file.name,
-                url,
-                file
-            });
-        }
-
-        setFotos(prevFotos => [
-            ...prevFotos,
-            ...fotosNuevas 
-        ])
+        // Empezar a optimizar todos los archivos obtenidos
+        optimizarImagenes([...files].map(file => ({
+            id: Date.now() + file.name,
+            file
+        })));
     }
 
     const handleBorrarImagenDB = (url: string) => {
         setFotosDB(prevFotos => [...prevFotos.map(foto => foto.url === url ? {url, borrar: true} : foto)]);
-    }
-
-    const handleBorrarImagenLocal = (id: string) => {
-        setFotos(prevFotos => [...prevFotos.filter(foto => foto.id !== id)]);
     }
 
     const handleCoordenadas = (e: any) => {
@@ -179,10 +163,11 @@ function FormularioPerdido(){
 
                             <div className="m-4 grid grid-cols-[repeat(auto-fill,minmax(min(100%,100px),1fr))] gap-4">
                                 {
-                                    fotos.map(({id, url}) => (
+                                    fotos.map(({id, url, progreso}) => (
                                         <ImagenFormulario
                                             key={id}
                                             src={url}
+                                            progreso={progreso}
                                             handleBorrar={() => handleBorrarImagenLocal(id)}
                                         />
                                     ))
