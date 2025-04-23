@@ -147,8 +147,6 @@ export async function crearPublicacionPerdido(datos: PublicacionPerdidoForm & { 
         const fotosValidas = fotos.filter(foto => !foto.nsfw).map(foto => foto.url);
         if(fotosValidas.length <= 0) throw new Error("Las fotos son inválidas");
 
-        console.log(fotosValidas);
-
         // Sobreescribir las fotos válidas
         nuevaPublicacion.fotos = fotosValidas;
     } catch(error){
