@@ -98,7 +98,7 @@ function FormularioPerdido(){
         if(files.length <= 0) return limpiarImagenes();
 
         // Empezar a optimizar todos los archivos obtenidos
-        optimizarImagenes([...files].map(file => ({
+        await optimizarImagenes([...files].map(file => ({
             id: Date.now() + file.name,
             file
         })));

@@ -35,7 +35,7 @@ function useImagenesOptimizadas() {
             ]
         ))
 
-        imagenes.forEach(async ({id, file: imagen}) => {    
+        const promesas = imagenes.map(async ({id, file: imagen}) => {    
             try{
                 const imagenOptimizada = await imageCompression(imagen, {
                     ...opcionesOptimizacion,
@@ -43,18 +43,26 @@ function useImagenesOptimizadas() {
                         setImagenesOptimizadas(actuales => {
                             return actuales.map((img) => {
                                 if(img.id === id){
-                                    img.progreso = progress;
+                                    return {
+                                        ...img,
+                                        progreso: progress
+                                    };
                                 }
                                 return img;
                             })
                         })
                     }
                 });
+                
+                // Se sustituye la imagen original por la optimizada
                 setImagenesOptimizadas(prev => prev.map((img) => {
                     if(img.id === id){
-                        img.file = imagenOptimizada;
-                        img.url = URL.createObjectURL(imagenOptimizada); // Crear URL para la imagen optimizada
-                        img.progreso = 100; // Asegurarse de que llegó al 100%
+                        return {
+                            ...img,
+                            file: imagenOptimizada,
+                            url: URL.createObjectURL(imagenOptimizada), // Crear URL para la imagen optimizada
+                            progreso: 100 // Asegurarse de que llegó al 100%
+                        }
                     }
                     return img;
                 }))
@@ -62,21 +70,42 @@ function useImagenesOptimizadas() {
                 console.error(err);
                 setImagenesOptimizadas(prev => prev.map((img) => {
                     if(img.id === id){
-                        img.progreso = -1; // Error
-                        img.url = URL.createObjectURL(imagen);
+                        return {
+                            ...img,
+                            progreso: -1, // Error
+                            url: URL.createObjectURL(imagen) // Crear URL para la imagen original
+                        }
                     }
                     return img;
                 }))
             }
         })
+
+        await Promise.all(promesas);
     }
 
     const limpiarImagenes = () => {
+        // Limpiar memoria
+        imagenesOptimizadas.forEach((img) => {
+            if(img.url){
+                URL.revokeObjectURL(img.url); // Limpiar URL de la imagen optimizada
+            }
+        })
+
+        // Limpiar el estado
         setImagenesOptimizadas([]);
     }
 
     const borrarImagen = (id: string) => {
-        setImagenesOptimizadas(prev => prev.filter((img) => img.id !== id))
+        setImagenesOptimizadas(prev => prev.filter((img) => {
+            // Limpiar memoria
+            if(img.url){
+                URL.revokeObjectURL(img.url); // Limpiar URL de la imagen optimizada
+            }
+            
+            // Filtrar la imagen que se quiere borrar
+            return img.id !== id
+        }))
     }
 
     return {
