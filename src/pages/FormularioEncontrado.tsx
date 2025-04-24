@@ -44,10 +44,9 @@ function FormularioEncontrado(){
         if(!id){
             //? Si no hay ID, se está creando una nueva publicación
             // Si no hay imagenes seleccionadas, se muestra un error
-            if(fotos.length <= 0){
-                toast.error("Selecciona al menos una foto");
-                return;
-            }
+            if(fotos.length <= 0) return toast.error("Selecciona al menos una foto");
+            // Si hay más de 5 fotos, se muestra el error
+            if(fotos.length > 5) return toast.error("No puedes subir más de 5 fotos");
 
             let datos = {
                 idCreador: usuario.uid,
@@ -67,8 +66,11 @@ function FormularioEncontrado(){
             //? Si hay ID, se está editando una publicación
             // Si no hay imagenes seleccionadas y no hay actuales, se muestra un error
             if(fotos.length <= 0 && fotosDB.filter(foto => !foto.borrar).length <= 0){
-                toast.error("Selecciona al menos una foto");
-                return;
+                return toast.error("Selecciona al menos una foto");
+            }
+            // Si hay más de 5 fotos, se muestra el error
+            if(fotos.length + fotosDB.filter(foto => !foto.borrar).length > 5){
+                return toast.error("No puedes subir más de 5 fotos");
             }
             let datos = {
                 // Indica cuales fotos se van a borrar y cuales se van a mantener
