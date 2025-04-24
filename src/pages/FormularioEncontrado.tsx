@@ -31,7 +31,7 @@ function FormularioEncontrado(){
     });
     const [fotosDB, setFotosDB] = useState<{url: string, borrar: boolean}[]>([]);
     const [coordenadas, setCoordenadas] = useState<Coordenadas>({ longitud: -103, latitud: 21 });
-    const { imagenesOptimizadas: fotos, optimizarImagenes, limpiarImagenes, borrarImagen: handleBorrarImagenLocal } = useImagenesOptimizadas();
+    const { optimizando, imagenesOptimizadas: fotos, optimizarImagenes, limpiarImagenes, borrarImagen: handleBorrarImagenLocal } = useImagenesOptimizadas();
     const [publicando, setPublicando] = useState(false);
 
     const [titulo, setTitulo] = useState("Publicar encontrado | DoggyFinder");
@@ -270,7 +270,7 @@ function FormularioEncontrado(){
                     />
                 </Label>
 
-                <Button type="submit" disabled={publicando}>{!id ? "Publicar" : "Editar"}</Button>
+                <Button type="submit" disabled={publicando || optimizando}>{!id ? "Publicar" : "Editar"}</Button>
             </form>
         </main>
     )
