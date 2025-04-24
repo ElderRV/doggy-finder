@@ -32,6 +32,8 @@ function FormularioPerdido(){
     const [fotosDB, setFotosDB] = useState<{url: string, borrar: boolean}[]>([]);
     const [coordenadas, setCoordenadas] = useState<Coordenadas>({ longitud: -103, latitud: 21 });
     const { imagenesOptimizadas: fotos, optimizarImagenes, limpiarImagenes, borrarImagen: handleBorrarImagenLocal } = useImagenesOptimizadas();
+    const [publicando, setPublicando] = useState(false);
+
     const [titulo, setTitulo] = useState("Publicar perdido | DoggyFinder");
 
     const navigate = useNavigate();
@@ -40,55 +42,61 @@ function FormularioPerdido(){
 
     const onSubmit = async (data: PublicacionPerdidoForm) => {
         if(!usuario) return;
+
+        setPublicando(true);
         
-        if(!id){
-            //? Si no hay ID, se está creando una nueva publicación
-            // Si no hay imagenes seleccionadas, se muestra un error
-            if(fotos.length <= 0) return toast.error("Selecciona al menos una foto");
-            // Si hay más de 5 fotos, se muestra el error
-            if(fotos.length > 5) return toast.error("No puedes subir más de 5 fotos");
-
-            let datos = {
-                idCreador: usuario.uid,
-                nombreCreador: usuario.displayName ?? "Anónimo",
-                // @ts-expect-error No importa que se sobreescriba la dirección
-                direccion: coordenadas, // Sobreescribir la dirección
-                fotos: fotos.map(foto => foto.file),
-                ...data,
+        try{
+            if(!id){
+                //? Si no hay ID, se está creando una nueva publicación
+                // Si no hay imagenes seleccionadas, se muestra un error
+                if(fotos.length <= 0) return toast.error("Selecciona al menos una foto");
+                // Si hay más de 5 fotos, se muestra el error
+                if(fotos.length > 5) return toast.error("No puedes subir más de 5 fotos");
+    
+                let datos = {
+                    idCreador: usuario.uid,
+                    nombreCreador: usuario.displayName ?? "Anónimo",
+                    // @ts-expect-error No importa que se sobreescriba la dirección
+                    direccion: coordenadas, // Sobreescribir la dirección
+                    fotos: fotos.map(foto => foto.file),
+                    ...data,
+                }
+                const promesa = crearPublicacionPerdido(datos);
+                await toast.promise(promesa, {
+                    loading: "Publicando perro perdido...",
+                    success: "Perro perdido publicado",
+                    error: error => error.message ?? "Hubo un error al publicar el perro perdido"
+                })
+            } else {
+                //? Si hay ID, se está editando una publicación
+                // Si no hay imagenes seleccionadas y no hay actuales, se muestra un error
+                if(fotos.length <= 0 && fotosDB.filter(foto => !foto.borrar).length <= 0){
+                    toast.error("Selecciona al menos una foto");
+                    return;
+                }
+                // Si hay más de 5 fotos, se muestra el error
+                if(fotos.length + fotosDB.filter(foto => !foto.borrar).length > 5){
+                    toast.error("No puedes subir más de 5 fotos");
+                    return;
+                }
+    
+                let datos = {
+                    // Indica cuales fotos se van a borrar y cuales se van a mantener
+                    fotosDB: fotosDB,
+                    // @ts-expect-error No importa que se sobreescriba la dirección
+                    direccion: coordenadas, // Sobreescribir la dirección
+                    fotos: fotos.map(foto => foto.file), // Fotos nuevas
+                    ...data,
+                }
+                const promesa = editarPublicacionPerdido(id, datos);
+                await toast.promise(promesa, {
+                    loading: "Editando perro perdido...",
+                    success: "Perro perdido editado",
+                    error: error => error.message ?? "Hubo un error al encontrar el perro perdido"
+                })
             }
-            const promesa = crearPublicacionPerdido(datos);
-            await toast.promise(promesa, {
-                loading: "Publicando perro perdido...",
-                success: "Perro perdido publicado",
-                error: error => error.message ?? "Hubo un error al publicar el perro perdido"
-            })
-        } else {
-            //? Si hay ID, se está editando una publicación
-            // Si no hay imagenes seleccionadas y no hay actuales, se muestra un error
-            if(fotos.length <= 0 && fotosDB.filter(foto => !foto.borrar).length <= 0){
-                toast.error("Selecciona al menos una foto");
-                return;
-            }
-            // Si hay más de 5 fotos, se muestra el error
-            if(fotos.length + fotosDB.filter(foto => !foto.borrar).length > 5){
-                toast.error("No puedes subir más de 5 fotos");
-                return;
-            }
-
-            let datos = {
-                // Indica cuales fotos se van a borrar y cuales se van a mantener
-                fotosDB: fotosDB,
-                // @ts-expect-error No importa que se sobreescriba la dirección
-                direccion: coordenadas, // Sobreescribir la dirección
-                fotos: fotos.map(foto => foto.file), // Fotos nuevas
-                ...data,
-            }
-            const promesa = editarPublicacionPerdido(id, datos);
-            await toast.promise(promesa, {
-                loading: "Editando perro perdido...",
-                success: "Perro perdido editado",
-                error: error => error.message ?? "Hubo un error al encontrar el perro perdido"
-            })
+        } finally {
+            setPublicando(false);
         }
 
         navigate("/buscar-perdidos");
@@ -270,7 +278,7 @@ function FormularioPerdido(){
                     />
                 </Label>
 
-                <Button type="submit">{!id ? "Publicar" : "Editar"}</Button>
+                <Button type="submit" disabled={publicando}>{!id ? "Publicar" : "Editar"}</Button>
             </form>
         </main>
     )
