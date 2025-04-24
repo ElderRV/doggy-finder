@@ -17,7 +17,7 @@ interface ImagenesForm {
 }
 
 // Custom hook para optimizar imagenes y regresar sus estados
-function useImagenesOptimizadas() {
+function useImagenesOptimizadas(opciones=opcionesOptimizacion) {
     const [imagenesOptimizadas, setImagenesOptimizadas] = useState<FotosOptimizadas>([]);
 
     const optimizarImagenes = async (imagenes: ImagenesForm[]) => {
@@ -38,7 +38,7 @@ function useImagenesOptimizadas() {
         const promesas = imagenes.map(async ({id, file: imagen}) => {    
             try{
                 const imagenOptimizada = await imageCompression(imagen, {
-                    ...opcionesOptimizacion,
+                    ...opciones,
                     onProgress: (progress) => {
                         setImagenesOptimizadas(actuales => {
                             return actuales.map((img) => {
