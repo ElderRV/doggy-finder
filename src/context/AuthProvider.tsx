@@ -1,11 +1,12 @@
 import { useState, useEffect, createContext, useContext } from "react";
-import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, sendPasswordResetEmail } from "firebase/auth";
+import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, sendPasswordResetEmail, UserCredential } from "firebase/auth";
 import { useNavigate } from "react-router";
 
 import { AuthProviderValue, AuthUser, AuthUserDB, Roles } from "@/types";
 import { auth, db } from "@/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
-import { PERMISOS } from "@/lib/utils";
+import { ERRORES_FIREBASE, PERMISOS } from "@/lib/utils";
+import { FirebaseError } from "firebase/app";
 
 const provider = new GoogleAuthProvider();
 
@@ -75,7 +76,17 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const registrarUsuario = async ({ name, email, password }: { name: string, email: string, password: string }): Promise<any> => {
         // Se registra al usuario y se regresan los datos de la cuenta
-        const usuario = await createUserWithEmailAndPassword(auth, email, password);
+        let usuario: UserCredential;
+        try{
+            usuario = await createUserWithEmailAndPassword(auth, email, password);
+        } catch(error){
+            if(error instanceof FirebaseError){
+                const errorCode = error?.code;
+                const mensajeError = ERRORES_FIREBASE.AUTH[errorCode] || "Ocurrió un error al iniciar sesión";
+                throw new Error(mensajeError);
+            }
+            throw new Error("Ocurrió un error al iniciar sesión");
+        }
 
         // Se actualiza el perfil del usuario con el nombre
         await updateProfile(auth.currentUser!, {
@@ -94,7 +105,16 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     const iniciarSesion = async ({ email, password }: { email: string, password: string }): Promise<any> => {
-        await signInWithEmailAndPassword(auth, email, password);
+        try{
+            await signInWithEmailAndPassword(auth, email, password);
+        } catch(error){
+            if(error instanceof FirebaseError){
+                const errorCode = error?.code;
+                const mensajeError = ERRORES_FIREBASE.AUTH[errorCode] || "Ocurrió un error al iniciar sesión";
+                throw new Error(mensajeError);
+            }
+            throw new Error("Ocurrió un error al iniciar sesión");
+        }
     }
 
     const cerrarSesion = async () => {

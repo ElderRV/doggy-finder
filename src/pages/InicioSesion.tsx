@@ -41,9 +41,9 @@ export default function InicioSesion() {
         await toast.promise(promesa, {
             loading: 'Iniciando sesión...',
             success: 'Sesión iniciada',
-            error: () => {
+            error: (error) => {
                 setIsLoading(false);
-                return 'Ocurrió un error al iniciar sesión';
+                return error.message;
             }
         })
 

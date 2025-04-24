@@ -45,7 +45,10 @@ export default function Registro() {
         await toast.promise(promesa, {
             loading: 'Registrando usuario...',
             success: 'Usuario registrado',
-            error: 'Ocurrió un error al registrar el usuario'
+            error: (error) => {
+                setIsLoading(false);
+                return error.message;
+            }
         })
 
         navigate("/");

@@ -29,6 +29,22 @@ export const PERMISOS = {
     }
 }
 
+interface ErroresFirebase {
+    AUTH: Record<string, string>;
+}
+export const ERRORES_FIREBASE: ErroresFirebase = {
+    AUTH: {
+        "auth/invalid-credential": "Credenciales inválidas",
+        "auth/invalid-email": "Correo electrónico inválido",
+        "auth/missing-password": "Escribe la contraseña",
+        "auth/invalid-login-credentials": "Credenciales de inicio de sesión incorrectas. Verifique su usuario y contraseña",
+        "auth/missing-email": "Escribe el correo electrónico",
+        "auth/weak-password": "La contraseña debe tener al menos 6 caracteres",
+        "auth/email-already-in-use": "El correo ya está en uso",
+        "auth/too-many-requests": "Acceso a la cuenta deshabilitado. Restablezca la contraseña",
+    },
+} as const;
+
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))
 }
