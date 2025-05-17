@@ -78,7 +78,7 @@ function SliderSimilares({ tipo, raza="Desconocida" }: SliderSimilaresProps){
                                 publicacionesSimilares.map(data => (
                                     <SwiperSlide key={data.id}>
                                         <CardPerro
-                                            coleccion={tipo == "perdido" ? "encontrado" : "perdido"}
+                                            coleccion={tipo == "perdido" ? "encontrados" : "perdidos"}
                                             data={data}
                                         />
                                     </SwiperSlide>
