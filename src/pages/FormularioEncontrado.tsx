@@ -266,7 +266,7 @@ function FormularioEncontrado(){
                         onInput={handleCoordenadas}
                         value={coordenadas}
                         // Para saber si se cambió de ruta entre publicar y editar
-                        modoEdicion={false}
+                        modoEdicion={Boolean(id)}
                     />
                 </Label>
 

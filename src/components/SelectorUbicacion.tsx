@@ -37,6 +37,7 @@ function SelectorDeUbicacion({
         let { longitud, latitud } = value;
 
         // Cuando se está publicando, se intenta obtener la ubicación
+        // Si se está editando, se usan las coordenadas de la publicación
         if(!modoEdicion){
             let coords = await obtenerUbicacion();
 
