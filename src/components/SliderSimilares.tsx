@@ -71,7 +71,6 @@ function SliderSimilares({ tipo, raza="Desconocida" }: SliderSimilaresProps){
                             keyboard={{
                                 enabled: true
                             }}
-                            autoplay={{ delay: 5000, pauseOnMouseEnter: true, disableOnInteraction: true }}
                             loop={publicacionesSimilares.length > 1}
                         >
                             {
