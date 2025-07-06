@@ -180,3 +180,8 @@ export async function incluyeNSFW(fotosUrls: string[]): Promise<IncluyeNSFWResul
     
     return resultados;
 }
+
+export function razaAFormato(raza: string){
+    const splitText = raza.replace(/_/, " ");
+    return splitText.charAt(0).toUpperCase() + splitText.slice(1);
+}
