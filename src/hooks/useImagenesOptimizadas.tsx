@@ -4,7 +4,7 @@ import imageCompression from "browser-image-compression";
 import { FotosOptimizadas } from "@/types";
 
 const opcionesOptimizacion = {
-    maxSizeMB: 0.5,
+    maxSizeMB: 0.3,
     maxWidthOrHeight: 1000,
     useWebWorker: true,
     preserveExif: false,
