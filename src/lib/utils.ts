@@ -61,6 +61,26 @@ export async function obtenerUbicacion(): Promise<Coordenadas | null> {
     })
 }
 
+// Función para convertir grados a radianes
+export function gradosARadianes(grados: number) {
+  return grados * Math.PI / 180;
+}
+
+// Función que calcula la distancia entre dos coordenadas (latitud y longitud) en kilómetros
+export function calcularDistancia(lat1: number, lon1: number, lat2: number, lon2: number) {
+  const R = 6371; // Radio de la Tierra en kilómetros
+  const dLat = gradosARadianes(lat2 - lat1);
+  const dLon = gradosARadianes(lon2 - lon1);
+
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(gradosARadianes(lat1)) * Math.cos(gradosARadianes(lat2)) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return R * c; // Distancia en kilómetros
+}
+
 export function obtenerRol(usuario: AuthUser): Roles{
     // Se obtiene el rol del usuario actual
     let rol = usuario?.rol ?? "anonimo"; // (admin o usuario, si no existe, es anonimo)

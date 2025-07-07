@@ -63,6 +63,13 @@ export default function Navbar() {
                                         </div>
                                     </NavigationMenuContent>
                                 </NavigationMenuItem>
+                                <NavigationMenuItem>
+                                    <Link to="/tu-zona">
+                                        <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                                            Tu Zona
+                                        </NavigationMenuLink>
+                                    </Link>
+                                </NavigationMenuItem>
                             </>
                         )
                     }

@@ -17,6 +17,8 @@ import FormularioEncontrado from "./pages/FormularioEncontrado";
 import BuscarEncontrados from "./pages/BuscarEncontrados";
 import DescripcionEncontrado from "./pages/DescripcionEncontrado";
 
+import TuZona from "./pages/TuZona";
+
 import Registro from "@/pages/Registro";
 import InicioSesion from "@/pages/InicioSesion";
 import Protegido from "./components/Protegido";
@@ -77,6 +79,8 @@ function App() {
                             />
                             <Route path="/buscar-encontrados" element={<BuscarEncontrados />} />
                             <Route path="/buscar-encontrados/:id" element={<DescripcionEncontrado />} />
+
+                            <Route path="/tu-zona" element={<TuZona />} />
 
                             <Route path="/registro" element={<Registro />} />
                             <Route path="/inicio-sesion" element={<InicioSesion />} />
