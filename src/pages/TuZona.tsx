@@ -179,6 +179,9 @@ function TuZona({ className }: TypeProps){
                             </SelectContent>
                         </Select>
 
+                        {
+                            ubicacionUsuario === null && (<p>Obteniendo ubicación...</p>)
+                        }
                         <div
                             className={className}
                             ref={mapaContenedor as React.LegacyRef<HTMLDivElement>}
