@@ -25,7 +25,44 @@ export default function Navbar() {
 
     return (
         <NavigationMenu className="mx-auto">
-            <NavigationMenuList className="px-8 py-2">
+            <NavigationMenuList className="px-8 py-2 flex flex-col md:flex-row-reverse gap-2">
+                <div className="flex self-end gap-4">
+                    {
+                        usuario ? (
+                            usuario?.photoURL && (
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger className="flex-shrink-0 outline-none">
+                                        <img className="size-8 rounded-full" src={usuario.photoURL} alt={`Imagen de perfil de ${usuario?.displayName}`} />
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent>
+                                        <DropdownMenuItem className="cursor-pointer" onClick={cerrarSesion}>Cerrar sesión</DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            )
+                        ) : (
+                            <>
+                                <NavigationMenuItem>
+                                    <Link to="/registro">
+                                        <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                                            Registro
+                                        </NavigationMenuLink>
+                                    </Link>
+                                </NavigationMenuItem>
+                                <NavigationMenuItem>
+                                    <Link to="/inicio-sesion">
+                                        <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                                            Iniciar sesión
+                                        </NavigationMenuLink>
+                                    </Link>
+                                </NavigationMenuItem>
+                            </>
+                        )
+                    }
+                    <NavigationMenuItem>
+                        <ModeToggle />
+                    </NavigationMenuItem>
+                </div>
+
                 <div className="flex">
                     <NavigationMenuItem>
                         <Link to="/">
@@ -74,42 +111,6 @@ export default function Navbar() {
                         )
                     }
                 </div>
-                {
-                    usuario ? (
-                        usuario?.photoURL && (
-                            <DropdownMenu>
-                                <DropdownMenuTrigger className="flex-shrink-0 outline-none">
-                                    <img className="size-8 rounded-full" src={usuario.photoURL} alt={`Imagen de perfil de ${usuario?.displayName}`} />
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent>
-                                    <DropdownMenuItem className="cursor-pointer" onClick={cerrarSesion}>Cerrar sesión</DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        )
-                    ) : (
-                        <>
-                            <NavigationMenuItem>
-                                <Link to="/registro">
-                                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                                        Registro
-                                    </NavigationMenuLink>
-                                </Link>
-                            </NavigationMenuItem>
-                            <NavigationMenuItem>
-                                <Link to="/inicio-sesion">
-                                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                                        Iniciar sesión
-                                    </NavigationMenuLink>
-                                </Link>
-                            </NavigationMenuItem>
-                        </>
-                    )
-                }
-                <NavigationMenuItem>
-                    <div className="ml-4">
-                        <ModeToggle />
-                    </div>
-                </NavigationMenuItem>
             </NavigationMenuList>
         </NavigationMenu>
     )
