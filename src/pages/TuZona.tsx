@@ -18,6 +18,7 @@ interface TypeProps {
 function TuZona({ className }: TypeProps){
     let mapaContenedor = useRef<string | HTMLElement | null>(null);
     const [mapa, setMapa] = useState<Map | null>(null);
+    const [errorUbicacion, setErrorUbicacion] = useState(false);
 
     const [encontrados, setEncontrados] = useState<PublicacionPerdidoDB[]>([]);
     const [perdidos, setPerdidos] = useState<PublicacionEncontradoDB[]>([]);
@@ -37,6 +38,7 @@ function TuZona({ className }: TypeProps){
 
         if(!longitud || !latitud){
             toast.error("No se pudo obtener la ubicación del usuario.");
+            setErrorUbicacion(true);
             return;
         }
 
@@ -111,7 +113,7 @@ function TuZona({ className }: TypeProps){
                             <div>
                                 <img src="${fotos[0]}" alt="${nombre}" />
                                 <p class="font-bold">${nombre}</p>
-                                <a class="text-sky-500" href="/buscar-perdidos/${id}" target="_blank">Ver</a>
+                                <a class="text-sky-500" href="/mostrar-perdidos/${id}" target="_blank">Ver</a>
                             </div>    
                         `);
 
@@ -135,7 +137,7 @@ function TuZona({ className }: TypeProps){
                             <div>
                                 <img src="${fotos[0]}" alt="${nombre}" />
                                 <p class="font-bold">${nombre}</p>
-                                <a class="text-sky-500" href="/buscar-encontrados/${id}" target="_blank">Ver</a>
+                                <a class="text-sky-500" href="/mostrar-encontrados/${id}" target="_blank">Ver</a>
                             </div>    
                         `);
 
@@ -156,31 +158,39 @@ function TuZona({ className }: TypeProps){
                 <p>Encuentra las publicaciones cercanas de las personas que han perdido o encontrado un perro.</p>
             </div>
 
-            <div className="flex flex-col justify-center items-center gap-8 mt-16">
-                <Select value={radioBusqueda.toString()} onValueChange={handleRadio}>
-                    <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder="Selecciona una raza" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectGroup>
-                            <SelectItem value="5">5 km</SelectItem>
-                            <SelectItem value="10">10 km</SelectItem>
-                            <SelectItem value="15">15 km</SelectItem>
-                            <SelectItem value="20">20 km</SelectItem>
-                            <SelectItem value="30">30 km</SelectItem>
-                            <SelectItem value="40">40 km</SelectItem>
-                            <SelectItem value="50">50 km</SelectItem>
-                            
-                        </SelectGroup>
-                    </SelectContent>
-                </Select>
+            {
+                !errorUbicacion ? (
+                    <div className="flex flex-col justify-center items-center gap-8 mt-16">
+                        <Select value={radioBusqueda.toString()} onValueChange={handleRadio}>
+                            <SelectTrigger className="w-[180px]">
+                                <SelectValue placeholder="Selecciona una raza" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectGroup>
+                                    <SelectItem value="5">5 km</SelectItem>
+                                    <SelectItem value="10">10 km</SelectItem>
+                                    <SelectItem value="15">15 km</SelectItem>
+                                    <SelectItem value="20">20 km</SelectItem>
+                                    <SelectItem value="30">30 km</SelectItem>
+                                    <SelectItem value="40">40 km</SelectItem>
+                                    <SelectItem value="50">50 km</SelectItem>
+                                    
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
 
-                <div
-                    className={className}
-                    ref={mapaContenedor as React.LegacyRef<HTMLDivElement>}
-                    style={{width: "90vmin", aspectRatio: "1/1"}}
-                />
-            </div>
+                        <div
+                            className={className}
+                            ref={mapaContenedor as React.LegacyRef<HTMLDivElement>}
+                            style={{width: "90vmin", aspectRatio: "1/1"}}
+                        />
+                    </div>
+                ):(
+                    <div className="text-red-300 text-center mt-16">
+                        <p>No se pudo obtener la ubicación del usuario. Asegúrate de que el navegador tenga permisos para acceder a la ubicación.</p>
+                    </div>
+                )
+            }
         </main>
     )
 }

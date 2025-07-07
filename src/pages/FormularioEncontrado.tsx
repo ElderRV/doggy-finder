@@ -96,7 +96,7 @@ function FormularioEncontrado(){
             setPublicando(false);
         }
 
-        navigate("/buscar-encontrados");
+        navigate("/mostrar-encontrados");
     }
 
     // Mostrar la vista previa de las imágenes que se están subiendo

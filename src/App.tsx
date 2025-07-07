@@ -10,11 +10,11 @@ import Navbar from "@/components/Navbar";
 import Inicio from "@/pages/Inicio";
 
 import FormularioPerdido from "./pages/FormularioPerdido";
-import BuscarPerdidos from "./pages/BuscarPerdidos";
+import MostrarPerdidos from "./pages/MostrarPerdidos";
 import DescripcionPerdido from "./pages/DescripcionPerdido";
 
 import FormularioEncontrado from "./pages/FormularioEncontrado";
-import BuscarEncontrados from "./pages/BuscarEncontrados";
+import MostrarEncontrados from "./pages/MostrarEncontrados";
 import DescripcionEncontrado from "./pages/DescripcionEncontrado";
 
 import TuZona from "./pages/TuZona";
@@ -54,8 +54,8 @@ function App() {
                                     <FormularioPerdido />
                                 </Protegido>}
                             />
-                            <Route path="/buscar-perdidos" element={<BuscarPerdidos />} />
-                            <Route path="/buscar-perdidos/:id" element={<DescripcionPerdido />} />
+                            <Route path="/mostrar-perdidos" element={<MostrarPerdidos />} />
+                            <Route path="/mostrar-perdidos/:id" element={<DescripcionPerdido />} />
 
                             <Route path="/publicar-encontrado" element={
                                 <Protegido
@@ -77,8 +77,8 @@ function App() {
                                     <FormularioEncontrado />
                                 </Protegido>}
                             />
-                            <Route path="/buscar-encontrados" element={<BuscarEncontrados />} />
-                            <Route path="/buscar-encontrados/:id" element={<DescripcionEncontrado />} />
+                            <Route path="/mostrar-encontrados" element={<MostrarEncontrados />} />
+                            <Route path="/mostrar-encontrados/:id" element={<DescripcionEncontrado />} />
 
                             <Route path="/tu-zona" element={<TuZona />} />
 

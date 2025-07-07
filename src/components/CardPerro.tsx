@@ -51,7 +51,7 @@ function CardPerro({ coleccion, data: { id, fecha, nombreCreador, nombre, descri
 
     return(
         <Card key={id}>
-            <Link to={`/buscar-${coleccion}/${id}`}>
+            <Link to={`/mostrar-${coleccion}/${id}`}>
                 <CardHeader>
                     <Protegido
                         names={["general/administrar-publicacion", "personal:publicacion/administrar-publicacion"]}

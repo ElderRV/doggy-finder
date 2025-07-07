@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { BotMessageSquare, ScanSearch } from "lucide-react";
 
-import { buscarPerrosSimilares } from "@/firebase";
+import { mostrarPerrosSimilares } from "@/firebase";
 
 import { PublicacionEncontradoDB, PublicacionPerdidoDB } from "@/types";
 import { DescripcionPublicacionProps } from "./DescripcionPublicacion";
@@ -24,7 +24,7 @@ function SliderSimilares({ tipo, raza="Desconocida" }: SliderSimilaresProps){
         if(!tipo || !raza) return setPublicacionesSimilares([]);
 
         // Se buscan perros similares dependiendo del tipo de la publicación actual y de la raza
-        buscarPerrosSimilares(tipo, raza)
+        mostrarPerrosSimilares(tipo, raza)
         .then(similares => {
             setPublicacionesSimilares(similares);
         })

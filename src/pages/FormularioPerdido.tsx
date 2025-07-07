@@ -99,7 +99,7 @@ function FormularioPerdido(){
             setPublicando(false);
         }
 
-        navigate("/buscar-perdidos");
+        navigate("/mostrar-perdidos");
     }
 
     // Mostrar la vista previa de las imágenes que se están subiendo

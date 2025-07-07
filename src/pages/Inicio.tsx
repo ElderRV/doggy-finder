@@ -28,8 +28,8 @@ function Inicio(){
                         <CardFooter className="flex flex-wrap justify-end gap-4">
                             <Link
                                 className={buttonVariants({ variant: "secondary", className: "flex-1" })}
-                                to="/buscar-encontrados"
-                            >Buscar perros encontrados</Link>
+                                to="/mostrar-encontrados"
+                            >Mostrar perros encontrados</Link>
                             <Link
                                 className={buttonVariants({ variant: "default", className: "flex-1" })}
                                 to="/publicar-perdido"
@@ -48,8 +48,8 @@ function Inicio(){
                         <CardFooter className="flex flex-wrap justify-end gap-4">
                             <Link
                                 className={buttonVariants({ variant: "secondary", className: "flex-1" })}
-                                to="/buscar-perdidos"
-                            >Buscar perros perdidos</Link>
+                                to="/mostrar-perdidos"
+                            >Mostrar perros perdidos</Link>
                             <Link
                                 className={buttonVariants({ variant: "default", className: "flex-1" })}
                                 to="/publicar-encontrado"

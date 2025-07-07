@@ -556,7 +556,7 @@ export async function borrarComentario(idComentario: string){
 }
 
 // Perros similares
-export async function buscarPerrosSimilares(tipo: string, raza: string){
+export async function mostrarPerrosSimilares(tipo: string, raza: string){
     let publicaciones: PublicacionEncontradoDB[] | PublicacionPerdidoDB[] = [];
 
     // Si un perro fue perdido, se busca en la colección de encontrados y viceversa

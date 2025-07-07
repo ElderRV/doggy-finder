@@ -51,14 +51,14 @@ export default function Navbar() {
                                     </NavigationMenuContent>
                                 </NavigationMenuItem>
                                 <NavigationMenuItem>
-                                    <NavigationMenuTrigger>Buscar</NavigationMenuTrigger>
+                                    <NavigationMenuTrigger>Mostrar</NavigationMenuTrigger>
                                     <NavigationMenuContent>
                                         <div className="grid w-[300px] gap-3 p-4 md:w-[400px] md:grid-cols-2 lg:w-[500px]">
-                                            <Link to="/buscar-perdidos" className={buttonVariants({ variant: "ghost" })}>
-                                                Buscar perdidos
+                                            <Link to="/mostrar-perdidos" className={buttonVariants({ variant: "ghost" })}>
+                                                Mostrar perdidos
                                             </Link>
-                                            <Link to="/buscar-encontrados" className={buttonVariants({ variant: "ghost" })}>
-                                                Buscar encontrados
+                                            <Link to="/mostrar-encontrados" className={buttonVariants({ variant: "ghost" })}>
+                                                Mostrar encontrados
                                             </Link>
                                         </div>
                                     </NavigationMenuContent>

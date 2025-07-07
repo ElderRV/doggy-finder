@@ -24,8 +24,8 @@ function AdministracionPublicacion({ tipo, borrarPublicacion }: AdministracionPu
             success: "Publicación borrada",
             error: "Error al borrar la publicación"
         })
-        // buscar-perdidos - buscar-encontrados
-        navigate(`/buscar-${tipo}s`);
+        // mostrar-perdidos - mostrar-encontrados
+        navigate(`/mostrar-${tipo}s`);
     }
 
     return(
